@@ -1,9 +1,3 @@
 .grid {
   border-collapse: collapse;
 }
-
-.node {
-  border: 1px solid black;
-  width: 25px;
-  height: 25px;
-}

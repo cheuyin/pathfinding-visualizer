@@ -1,16 +1,26 @@
 import styles from './grid.module.css';
-import { createArrayFromNum } from '../utils/general-utils';
+import { createArrayFromNum } from '../utils/utils';
+import { Node } from './node';
+import { Coordinate } from '../types/types';
 
-const NUM_COLS = 50;
-const NUM_ROWS = 25;
+interface GridProps {
+  numRows: number;
+  numCols: number;
+  startNode: Coordinate;
+  targetNode: Coordinate;
+}
 
-export const Grid = () => {
+export const Grid: React.FC<GridProps> = ({ numRows, numCols, startNode, targetNode }) => {
   return (
     <table className={styles.grid}>
-      {createArrayFromNum(NUM_ROWS).map((rowId) => (
+      {createArrayFromNum(numRows).map((rowId) => (
         <tr key={rowId}>
-          {createArrayFromNum(NUM_COLS).map((colId) => (
-            <td key={`${rowId} ${colId}`} className={styles.node}></td>
+          {createArrayFromNum(numCols).map((colId) => (
+            <Node
+              key={`${rowId} ${colId}`}
+              isStartNode={rowId === startNode.rowId && colId === startNode.colId}
+              isTargetNode={rowId === targetNode.rowId && colId === targetNode.colId}
+            />
           ))}
         </tr>
       ))}
