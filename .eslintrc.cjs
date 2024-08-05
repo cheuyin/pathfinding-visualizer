@@ -8,11 +8,23 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'check-file'],
   rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    'check-file/filename-naming-convention': [
+      'error',
+      {
+        '**/*.{ts,tsx}': 'KEBAB_CASE',
+      },
+      {
+        ignoreMiddleExtensions: true,
+      },
+    ],
+    'check-file/folder-naming-convention': [
+      'error',
+      {
+        'src/**/!(__tests__)': 'KEBAB_CASE',
+      },
     ],
   },
-}
+};
