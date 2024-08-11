@@ -10,7 +10,7 @@ const NUM_GRID_COLS = 50;
 const NUM_GRID_ROWS = 30;
 
 const SOURCE_COORD = {
-  x: 5,
+  x: 30,
   y: 10,
 };
 
@@ -21,7 +21,9 @@ const TARGET_COORD = {
 
 export const useGrid = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
-  const [isRunning, setIsRunning] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [existsPath, setExistsPath] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   const setWall = (node: Node) => {
     const nodeCopy = { ...node };
@@ -38,7 +40,7 @@ export const useGrid = () => {
   };
 
   const toggleVisualization = () => {
-    setIsRunning((prev) => !prev);
+    setIsPaused((prev) => !prev);
   };
 
   const resetGrid = () => {
@@ -46,33 +48,67 @@ export const useGrid = () => {
   };
 
   useEffect(() => {
-    if (!isRunning) {
+    if (existsPath) {
+      setGrid((prevGrid) => {
+        const newGrid = prevGrid.map((row) => row.map((node) => ({ ...node })));
+
+        let target: Node | null = null;
+
+        for (const row of newGrid) {
+          for (const node of row) {
+            if (node.type === NodeType.TARGET) {
+              target = node;
+              break;
+            }
+          }
+          if (target) break;
+        }
+
+        assert(target !== null, 'target should not be null');
+
+        let currNode: Node | null = (target as Node).prevNode;
+        while (currNode && currNode.prevNode) {
+          const newNode = newGrid[currNode.y][currNode.x];
+          newNode.type = NodeType.PATH;
+          currNode = currNode.prevNode;
+        }
+
+        return newGrid;
+      });
+    }
+  }, [existsPath]);
+
+  useEffect(() => {
+    if (isPaused || isFinished) {
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      const newGrid = dijkstra(grid);
-      if (!newGrid) {
-        setIsRunning(false);
-        clearTimeout(timeoutId);
-      } else if (isTargetVisited(newGrid)) {
-        setIsRunning(false);
-        clearTimeout(timeoutId);
-        const finalGrid = markOptimalPath(newGrid);
-        alert('Optimal PATH!');
-        setGrid(finalGrid);
-      } else {
-        setGrid(newGrid);
-      }
-    }, 10);
+    const intervalId = setInterval(() => {
+      setGrid((prevGrid) => {
+        const gridCopy = prevGrid.map((row) => row.map((node) => ({ ...node })));
+        const newGrid = dijkstra(gridCopy);
+
+        if (!newGrid) {
+          setIsFinished(true);
+          clearInterval(intervalId);
+          return prevGrid;
+        } else if (isTargetVisited(newGrid)) {
+          setIsFinished(true);
+          setExistsPath(true);
+          clearInterval(intervalId);
+          return newGrid;
+        } else {
+          return newGrid;
+        }
+      });
+    }, 1);
 
     return () => {
-      clearTimeout(timeoutId);
+      clearInterval(intervalId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [grid, isRunning]);
+  }, [isPaused, isFinished]);
 
-  return { grid, setWall, isRunning, toggleVisualization, resetGrid };
+  return { grid, setWall, isRunning: isPaused, toggleVisualization, resetGrid };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {
@@ -113,34 +149,4 @@ const isTargetVisited = (grid: GridType): boolean => {
     }
   }
   return false;
-};
-
-/**
- * Produces a shallow copy of a grid where a path from the source node to target node is marked
- *
- * Assumptions:
- * - There exists a path from the source to the target (i.e. target node isn't blocked off by walls)
- */
-const markOptimalPath = (grid: GridType): GridType => {
-  const newGrid = grid.map((row) => row.map((node) => ({ ...node })));
-
-  let target: Node | null = null;
-
-  for (const row of newGrid) {
-    for (const node of row) {
-      if (node.type === NodeType.TARGET) {
-        target = node;
-      }
-    }
-  }
-
-  assert(target !== null, 'target should not be null');
-
-  let currNode: Node | null = (target as Node).prevNode;
-  while (currNode && currNode.prevNode) {
-    currNode.type = NodeType.PATH;
-    currNode = currNode.prevNode;
-  }
-
-  return newGrid;
 };

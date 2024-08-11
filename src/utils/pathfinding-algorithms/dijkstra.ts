@@ -4,22 +4,19 @@ import { Node } from '../../types/types';
 
 /**
  * Runs Dijkstra's algorithm on one node
- * Returns new Grid object
  *
  * Returns false if the algorithm should stop
  *
  */
 export const dijkstra = (grid: Grid): Grid | false => {
-  const newGrid = grid.map((row) => row.map((node) => ({ ...node })));
-
-  const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(newGrid);
+  const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(grid);
 
   if (!unvisitedNodeWithShortestDistance) {
     return false;
   }
 
   const unvisitedNeighbours: Node[] = findUnvisitedNeighbours(
-    newGrid,
+    grid,
     unvisitedNodeWithShortestDistance.x,
     unvisitedNodeWithShortestDistance.y,
   );
@@ -34,7 +31,7 @@ export const dijkstra = (grid: Grid): Grid | false => {
 
   unvisitedNodeWithShortestDistance.visited = true;
 
-  return newGrid;
+  return grid;
 };
 
 const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
