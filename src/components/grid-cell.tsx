@@ -15,6 +15,10 @@ export const GridCell: React.FC<GridCellProps> = ({ node }) => {
     return <TargetCell />;
   }
 
+  if (node.type === NodeType.PATH) {
+    return <PathCell />;
+  }
+
   if (node.visited) {
     return <VisitedCell />;
   }
@@ -34,6 +38,10 @@ const SourceCell = styled(Cell)`
 
 const TargetCell = styled(Cell)`
   background-color: red;
+`;
+
+const PathCell = styled(Cell)`
+  background-color: lightblue;
 `;
 
 const VisitedCell = styled(Cell)`

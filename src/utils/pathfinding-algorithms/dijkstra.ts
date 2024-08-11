@@ -5,31 +5,33 @@ import { Node } from '../../types/types';
  * Runs Dijkstra's algorithm on one node
  * Returns new Grid object
  *
+ * Returns false if the algorithm should stop
+ *
  */
-export const dijkstra = (grid: Grid): Grid => {
+export const dijkstra = (grid: Grid): Grid | false => {
   const newGrid = grid.map((row) => [...row]);
 
-  const nodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(newGrid);
+  const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(newGrid);
 
-  if (!nodeWithShortestDistance) {
-    return newGrid;
+  if (!unvisitedNodeWithShortestDistance) {
+    return false;
   }
 
   const unvisitedNeighbours: Node[] = findUnvisitedNeighbours(
     newGrid,
-    nodeWithShortestDistance.x,
-    nodeWithShortestDistance.y,
+    unvisitedNodeWithShortestDistance.x,
+    unvisitedNodeWithShortestDistance.y,
   );
 
   for (const n of unvisitedNeighbours) {
-    const currDist = nodeWithShortestDistance.distance + 1;
+    const currDist = unvisitedNodeWithShortestDistance.distance + 1;
     if (currDist < n.distance) {
       n.distance = currDist;
-      n.prevNode = nodeWithShortestDistance;
+      n.prevNode = unvisitedNodeWithShortestDistance;
     }
   }
 
-  nodeWithShortestDistance.visited = true;
+  unvisitedNodeWithShortestDistance.visited = true;
 
   return newGrid;
 };
@@ -39,7 +41,7 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
 
   for (const row of grid) {
     for (const node of row) {
-      if (node.visited) {
+      if (node.visited || node.distance === Number.POSITIVE_INFINITY) {
         continue;
       }
       if (!res || node.distance < res.distance) {
