@@ -1,5 +1,5 @@
-import { GridController } from './components/grid-controller';
+import { VisualizationController } from './controllers/visualization-controller';
 
 export const App = () => {
-  return <GridController />;
+  return <VisualizationController />;
 };
