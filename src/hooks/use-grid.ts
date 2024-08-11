@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
@@ -9,8 +9,8 @@ const NUM_GRID_COLS = 50;
 const NUM_GRID_ROWS = 25;
 
 const SOURCE_COORD = {
-  x: 5,
-  y: 5,
+  x: 25,
+  y: 10,
 };
 
 const TARGET_COORD = {
@@ -21,10 +21,20 @@ const TARGET_COORD = {
 export const useGrid = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
 
-  setInterval(() => {
-    const newGrid = dijkstra(grid);
-    setGrid(newGrid);
-  }, 1000);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setGrid((prevGrid) => {
+        let updatedGrid = prevGrid;
+        for (let i = 0; i < 5; i++) {
+          updatedGrid = dijkstra(updatedGrid);
+        }
+        return updatedGrid;
+      });
+    }, 10);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { grid, setGrid };
 };
