@@ -34,6 +34,7 @@ const createInitialGrid = (numRows: number, numCols: number): Node[][] => {
 
       if (i + 1 == SOURCE_COORD.y && j + 1 == SOURCE_COORD.x) {
         node.type = NodeState.SOURCE;
+        node.distance = 0;
       } else if (i + 1 == TARGET_COORD.y && j + 1 == TARGET_COORD.x) {
         node.type = NodeState.TARGET;
       }
