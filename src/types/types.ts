@@ -1,4 +1,4 @@
-import { NodeState } from './enums';
+import { NodeType } from './enums';
 
 export interface Node {
   id: string;
@@ -6,7 +6,7 @@ export interface Node {
   y: number;
   prevNode: Node | null;
   distance: number;
-  type: NodeState;
+  type: NodeType;
   visited: boolean;
 }
 

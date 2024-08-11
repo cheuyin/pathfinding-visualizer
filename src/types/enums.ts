@@ -1,7 +1,7 @@
-export enum NodeState {
+export enum NodeType {
   SOURCE,
   TARGET,
   WALL,
-  NORMAL,
   PATH,
+  BLANK,
 }

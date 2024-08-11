@@ -1,23 +1,25 @@
 import styled from 'styled-components';
 import { Node } from '../types/types';
-import { NodeState } from '../types/enums';
+import { NodeType } from '../types/enums';
 
 interface GridCellProps {
   node: Node;
 }
 
 export const GridCell: React.FC<GridCellProps> = ({ node }) => {
-  console.log;
-  switch (node.type) {
-    case NodeState.NORMAL:
-      return <Cell />;
-    case NodeState.SOURCE:
-      return <SourceCell />;
-    case NodeState.TARGET:
-      return <TargetCell />;
-    default:
-      return <Cell />;
+  if (node.type === NodeType.SOURCE) {
+    return <SourceCell />;
   }
+
+  if (node.type === NodeType.TARGET) {
+    return <TargetCell />;
+  }
+
+  if (node.visited) {
+    return <VisitedCell />;
+  }
+
+  return <Cell />;
 };
 
 const Cell = styled.td`
@@ -32,4 +34,8 @@ const SourceCell = styled(Cell)`
 
 const TargetCell = styled(Cell)`
   background-color: red;
+`;
+
+const VisitedCell = styled(Cell)`
+  background-color: yellow;
 `;

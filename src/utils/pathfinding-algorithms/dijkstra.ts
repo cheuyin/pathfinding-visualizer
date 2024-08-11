@@ -39,6 +39,9 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
 
   for (const row of grid) {
     for (const node of row) {
+      if (node.visited) {
+        continue;
+      }
       if (!res || node.distance < res.distance) {
         res = node;
       }
@@ -55,22 +58,22 @@ const findUnvisitedNeighbours = (grid: Grid, nodeX: number, nodeY: number): Node
   const unvisitedNeighbours: Node[] = [];
 
   if (nodeX > 0) {
-    const n = grid[nodeX - 1][nodeY];
+    const n = grid[nodeY][nodeX - 1];
     if (!n.visited) unvisitedNeighbours.push(n);
   }
 
   if (nodeX < numCols - 1) {
-    const n = grid[nodeX + 1][nodeY];
+    const n = grid[nodeY][nodeX + 1];
     if (!n.visited) unvisitedNeighbours.push(n);
   }
 
   if (nodeY > 0) {
-    const n = grid[nodeX][nodeY - 1];
+    const n = grid[nodeY - 1][nodeX];
     if (!n.visited) unvisitedNeighbours.push(n);
   }
 
   if (nodeY < numRows - 1) {
-    const n = grid[nodeX][nodeY + 1];
+    const n = grid[nodeY + 1][nodeX];
     if (!n.visited) unvisitedNeighbours.push(n);
   }
 
