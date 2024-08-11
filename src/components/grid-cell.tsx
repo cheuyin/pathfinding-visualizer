@@ -7,43 +7,32 @@ interface GridCellProps {
 }
 
 export const GridCell: React.FC<GridCellProps> = ({ node }) => {
-  if (node.type === NodeType.SOURCE) {
-    return <SourceCell />;
-  }
-
-  if (node.type === NodeType.TARGET) {
-    return <TargetCell />;
-  }
-
-  if (node.type === NodeType.PATH) {
-    return <PathCell />;
-  }
-
-  if (node.visited) {
-    return <VisitedCell />;
-  }
-
-  return <Cell />;
+  return <Cell bgColor={getBackgroundColor(node.type, node.visited)} />;
 };
 
-const Cell = styled.td`
+const Cell = styled.td<{ bgColor: string }>`
   border: 1px solid black;
   width: 25px;
   height: 25px;
+  background-color: ${(props) => props.bgColor};
 `;
 
-const SourceCell = styled(Cell)`
-  background-color: green;
-`;
+const getBackgroundColor = (type: NodeType, isVisited: boolean): string => {
+  if (type === NodeType.SOURCE) {
+    return 'green';
+  }
 
-const TargetCell = styled(Cell)`
-  background-color: red;
-`;
+  if (type === NodeType.TARGET) {
+    return 'red';
+  }
 
-const PathCell = styled(Cell)`
-  background-color: lightblue;
-`;
+  if (type === NodeType.PATH) {
+    return 'lightblue';
+  }
 
-const VisitedCell = styled(Cell)`
-  background-color: yellow;
-`;
+  if (isVisited) {
+    return 'yellow';
+  }
+
+  return '';
+};
