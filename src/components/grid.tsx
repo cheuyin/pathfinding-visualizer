@@ -1,4 +1,4 @@
-import styles from './grid.module.css';
+import styled from 'styled-components';
 import { Node } from '../types/types';
 import { GridCell } from './grid-cell';
 
@@ -8,7 +8,7 @@ interface GridProps {
 
 export const Grid: React.FC<GridProps> = ({ grid }) => {
   return (
-    <table className={styles.grid}>
+    <Table>
       {grid.map((row, rowIdx) => (
         <tr key={rowIdx}>
           {row.map((_, colIdx) => (
@@ -16,6 +16,10 @@ export const Grid: React.FC<GridProps> = ({ grid }) => {
           ))}
         </tr>
       ))}
-    </table>
+    </Table>
   );
 };
+
+const Table = styled.table`
+  border-collapse: collapse;
+`;
