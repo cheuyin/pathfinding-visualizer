@@ -1,3 +1,4 @@
+import { NodeType } from '../../types/enums';
 import { Grid } from '../../types/types';
 import { Node } from '../../types/types';
 
@@ -9,7 +10,7 @@ import { Node } from '../../types/types';
  *
  */
 export const dijkstra = (grid: Grid): Grid | false => {
-  const newGrid = grid.map((row) => [...row]);
+  const newGrid = grid.map((row) => row.map((node) => ({ ...node })));
 
   const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(newGrid);
 
@@ -61,22 +62,22 @@ const findUnvisitedNeighbours = (grid: Grid, nodeX: number, nodeY: number): Node
 
   if (nodeX > 0) {
     const n = grid[nodeY][nodeX - 1];
-    if (!n.visited) unvisitedNeighbours.push(n);
+    if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
   if (nodeX < numCols - 1) {
     const n = grid[nodeY][nodeX + 1];
-    if (!n.visited) unvisitedNeighbours.push(n);
+    if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
   if (nodeY > 0) {
     const n = grid[nodeY - 1][nodeX];
-    if (!n.visited) unvisitedNeighbours.push(n);
+    if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
   if (nodeY < numRows - 1) {
     const n = grid[nodeY + 1][nodeX];
-    if (!n.visited) unvisitedNeighbours.push(n);
+    if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
   return unvisitedNeighbours;
