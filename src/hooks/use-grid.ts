@@ -1,8 +1,10 @@
-import { NUM_GRID_COLS, NUM_GRID_ROWS } from '../config/constants';
 import { useState } from 'react';
-import { Grid } from '../components/grid';
-import { Grid as GridType, Node } from '../types/types';
+import { Grid as GridType } from '../types/types';
 import { NodeState } from '../types/enums';
+import { Node } from '../types/types';
+
+const NUM_GRID_COLS = 50;
+const NUM_GRID_ROWS = 25;
 
 const SOURCE_COORD = {
   x: 5,
@@ -14,10 +16,9 @@ const TARGET_COORD = {
   y: 20,
 };
 
-export const VisualizationController = () => {
+export const useGrid = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
-
-  return <Grid grid={grid} />;
+  return { grid, setGrid };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): Node[][] => {

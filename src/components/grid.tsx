@@ -1,12 +1,9 @@
 import styled from 'styled-components';
-import { Grid as GridType } from '../types/types';
 import { GridCell } from './grid-cell';
+import { useGrid } from '../hooks/use-grid';
 
-interface GridProps {
-  grid: GridType;
-}
-
-export const Grid: React.FC<GridProps> = ({ grid }) => {
+export const Grid: React.FC = () => {
+  const { grid } = useGrid();
   return (
     <Table>
       <tbody>
