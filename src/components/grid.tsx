@@ -1,21 +1,23 @@
 import styled from 'styled-components';
-import { Node } from '../types/types';
+import { Grid as GridType } from '../types/types';
 import { GridCell } from './grid-cell';
 
 interface GridProps {
-  grid: Node[][];
+  grid: GridType;
 }
 
 export const Grid: React.FC<GridProps> = ({ grid }) => {
   return (
     <Table>
-      {grid.map((row, rowIdx) => (
-        <tr key={rowIdx}>
-          {row.map((_, colIdx) => (
-            <GridCell key={`${colIdx} ${rowIdx}`} />
-          ))}
-        </tr>
-      ))}
+      <tbody>
+        {grid.map((row, rowIdx) => (
+          <tr key={rowIdx}>
+            {row.map((node, colIdx) => (
+              <GridCell key={`${colIdx} ${rowIdx}`} node={node} />
+            ))}
+          </tr>
+        ))}
+      </tbody>
     </Table>
   );
 };

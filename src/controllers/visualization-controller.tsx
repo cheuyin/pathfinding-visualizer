@@ -1,7 +1,7 @@
 import { NUM_GRID_COLS, NUM_GRID_ROWS } from '../config/constants';
-import { Grid } from '../components/grid';
 import { useState } from 'react';
-import { Node } from '../types/types';
+import { Grid } from '../components/grid';
+import { Grid as GridType, Node } from '../types/types';
 import { NodeState } from '../types/enums';
 
 const SOURCE_COORD = {
@@ -10,12 +10,12 @@ const SOURCE_COORD = {
 };
 
 const TARGET_COORD = {
-  x: 25,
-  y: 10,
+  x: 40,
+  y: 20,
 };
 
 export const VisualizationController = () => {
-  const [grid, setGrid] = useState<Node[][]>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
+  const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
 
   return <Grid grid={grid} />;
 };
@@ -28,7 +28,7 @@ const createInitialGrid = (numRows: number, numCols: number): Node[][] => {
       const node: Node = {
         prevCell: null,
         type: NodeState.NORMAL,
-        weight: Number.POSITIVE_INFINITY,
+        distance: Number.POSITIVE_INFINITY,
       };
 
       if (i + 1 == SOURCE_COORD.y && j + 1 == SOURCE_COORD.x) {
