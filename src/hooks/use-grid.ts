@@ -16,8 +16,8 @@ const SOURCE_COORD = {
 };
 
 const TARGET_COORD = {
-  x: 40,
-  y: 10,
+  x: 25,
+  y: 15,
 };
 
 export const useGrid = () => {
@@ -95,6 +95,7 @@ const createInitialGrid = (numRows: number, numCols: number): GridType => {
         type: NodeType.BLANK,
         distance: Number.POSITIVE_INFINITY,
         visited: false,
+        hScore: 0,
       };
 
       if (j == SOURCE_COORD.x && i == SOURCE_COORD.y) {

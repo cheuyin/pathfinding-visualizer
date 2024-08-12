@@ -23,33 +23,34 @@ export const aStar = (grid: Grid): Grid | false => {
     return false;
   }
 
-  const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(grid);
+  calculateHScores(grid, target);
 
-  if (!unvisitedNodeWithShortestDistance) {
+  const unvisitedNodeWithLowestCost = findUnvisitedNodeWithLowestCost(grid);
+
+  if (!unvisitedNodeWithLowestCost) {
     return false;
   }
 
   const unvisitedNeighbours: Node[] = findUnvisitedNeighbours(
     grid,
-    unvisitedNodeWithShortestDistance.x,
-    unvisitedNodeWithShortestDistance.y,
+    unvisitedNodeWithLowestCost.x,
+    unvisitedNodeWithLowestCost.y,
   );
 
   for (const n of unvisitedNeighbours) {
-    let currDist = unvisitedNodeWithShortestDistance.distance + 1;
-    currDist = currDist + calculateHScore(n, target);
+    const currDist = unvisitedNodeWithLowestCost.distance + 1;
     if (currDist < n.distance) {
       n.distance = currDist;
-      n.prevNode = unvisitedNodeWithShortestDistance;
+      n.prevNode = unvisitedNodeWithLowestCost;
     }
   }
 
-  unvisitedNodeWithShortestDistance.visited = true;
+  unvisitedNodeWithLowestCost.visited = true;
 
   return grid;
 };
 
-const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
+const findUnvisitedNodeWithLowestCost = (grid: Grid): Node | null => {
   let res: Node | null = null;
 
   for (const row of grid) {
@@ -61,7 +62,7 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
       ) {
         continue;
       }
-      if (!res || node.distance < res.distance) {
+      if (!res || node.distance + node.hScore < res.distance + res.hScore) {
         res = node;
       }
     }
@@ -97,6 +98,14 @@ const findUnvisitedNeighbours = (grid: Grid, nodeX: number, nodeY: number): Node
   }
 
   return unvisitedNeighbours;
+};
+
+const calculateHScores = (grid: Grid, targetNode: Node) => {
+  for (const row of grid) {
+    for (const node of row) {
+      node.hScore = calculateHScore(node, targetNode);
+    }
+  }
 };
 
 /**

@@ -8,6 +8,7 @@ export interface Node {
   distance: number;
   type: NodeType;
   visited: boolean;
+  hScore: number;
 }
 
 export type Grid = Node[][];
