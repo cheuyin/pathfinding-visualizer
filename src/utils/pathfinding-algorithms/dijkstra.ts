@@ -39,7 +39,11 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
 
   for (const row of grid) {
     for (const node of row) {
-      if (node.visited || node.distance === Number.POSITIVE_INFINITY) {
+      if (
+        node.visited ||
+        node.distance === Number.POSITIVE_INFINITY ||
+        node.type === NodeType.WALL
+      ) {
         continue;
       }
       if (!res || node.distance < res.distance) {
