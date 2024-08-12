@@ -22,7 +22,6 @@ const TARGET_COORD = {
 export const useGrid = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [isPaused, setIsPaused] = useState(false);
-  const [existsPath, setExistsPath] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
   const setWall = (node: Node) => {
@@ -48,37 +47,6 @@ export const useGrid = () => {
   };
 
   useEffect(() => {
-    if (existsPath) {
-      setGrid((prevGrid) => {
-        const newGrid = prevGrid.map((row) => row.map((node) => ({ ...node })));
-
-        let target: Node | null = null;
-
-        for (const row of newGrid) {
-          for (const node of row) {
-            if (node.type === NodeType.TARGET) {
-              target = node;
-              break;
-            }
-          }
-          if (target) break;
-        }
-
-        assert(target !== null, 'target should not be null');
-
-        let currNode: Node | null = (target as Node).prevNode;
-        while (currNode && currNode.prevNode) {
-          const newNode = newGrid[currNode.y][currNode.x];
-          newNode.type = NodeType.PATH;
-          currNode = currNode.prevNode;
-        }
-
-        return newGrid;
-      });
-    }
-  }, [existsPath]);
-
-  useEffect(() => {
     if (isPaused || isFinished) {
       return;
     }
@@ -94,9 +62,9 @@ export const useGrid = () => {
           return prevGrid;
         } else if (isTargetVisited(newGrid)) {
           setIsFinished(true);
-          setExistsPath(true);
+          const gridWithMarkedPath = markPathOnGrid(newGrid);
           clearInterval(intervalId);
-          return newGrid;
+          return gridWithMarkedPath;
         } else {
           return newGrid;
         }
@@ -104,11 +72,12 @@ export const useGrid = () => {
     }, 1);
 
     return () => {
+      console.log('interval cleared')
       clearInterval(intervalId);
     };
   }, [isPaused, isFinished]);
 
-  return { grid, setWall, isRunning: isPaused, toggleVisualization, resetGrid };
+  return { grid, setWall, isPaused, toggleVisualization, resetGrid };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {
@@ -149,4 +118,29 @@ const isTargetVisited = (grid: GridType): boolean => {
     }
   }
   return false;
+};
+
+const markPathOnGrid = (grid: GridType): GridType => {
+  let target: Node | null = null;
+
+  for (const row of grid) {
+    for (const node of row) {
+      if (node.type === NodeType.TARGET) {
+        target = node;
+        break;
+      }
+    }
+    if (target) break;
+  }
+
+  assert(target !== null, 'target should not be null');
+
+  let currNode: Node | null = (target as Node).prevNode;
+  while (currNode && currNode.prevNode) {
+    const newNode = grid[currNode.y][currNode.x];
+    newNode.type = NodeType.PATH;
+    currNode = currNode.prevNode;
+  }
+
+  return grid;
 };

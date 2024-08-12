@@ -3,7 +3,7 @@ import { GridCell } from './grid-cell';
 import { useGrid } from '../hooks/use-grid';
 
 export const Grid: React.FC = () => {
-  const { grid, setWall, isRunning, toggleVisualization, resetGrid } = useGrid();
+  const { grid, setWall, isPaused, toggleVisualization, resetGrid } = useGrid();
 
   return (
     <div>
@@ -18,7 +18,7 @@ export const Grid: React.FC = () => {
           ))}
         </tbody>
       </Table>
-      <button onClick={toggleVisualization}>{isRunning ? 'Pause' : 'Start'}</button>
+      <button onClick={toggleVisualization}>{isPaused ? 'Start' : 'Pause'}</button>
       <button onClick={resetGrid}>Reset</button>
     </div>
   );
