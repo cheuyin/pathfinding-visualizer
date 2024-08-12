@@ -5,22 +5,24 @@ import { Node } from '../types/types';
 import { v4 as uuidv4 } from 'uuid';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { assert } from '../utils/utils';
+import { Algorithm } from '../types/types';
 
 const NUM_GRID_COLS = 50;
 const NUM_GRID_ROWS = 30;
 
 const SOURCE_COORD = {
-  x: 30,
+  x: 10,
   y: 10,
 };
 
 const TARGET_COORD = {
   x: 40,
-  y: 20,
+  y: 10,
 };
 
 export const useGrid = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
+  const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isPaused, setIsPaused] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
@@ -44,6 +46,7 @@ export const useGrid = () => {
 
   const resetGrid = () => {
     setGrid(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
+    setIsFinished(false);
   };
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export const useGrid = () => {
     const intervalId = setInterval(() => {
       setGrid((prevGrid) => {
         const gridCopy = prevGrid.map((row) => row.map((node) => ({ ...node })));
-        const newGrid = dijkstra(gridCopy);
+        const newGrid = algorithm(gridCopy);
 
         if (!newGrid) {
           setIsFinished(true);
@@ -72,12 +75,11 @@ export const useGrid = () => {
     }, 1);
 
     return () => {
-      console.log('interval cleared')
       clearInterval(intervalId);
     };
-  }, [isPaused, isFinished]);
+  }, [isPaused, isFinished, algorithm]);
 
-  return { grid, setWall, isPaused, toggleVisualization, resetGrid };
+  return { grid, setWall, isPaused, toggleVisualization, resetGrid, setAlgorithm };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {

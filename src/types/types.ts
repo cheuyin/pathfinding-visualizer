@@ -11,3 +11,5 @@ export interface Node {
 }
 
 export type Grid = Node[][];
+
+export type Algorithm = (grid: Grid) => Grid | false;
