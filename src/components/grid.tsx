@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import { GridCell } from './grid-cell';
-import { useGrid } from '../hooks/use-grid';
+import { useVisualizer } from '../hooks/use-visualizer';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { aStar } from '../utils/pathfinding-algorithms/a-star';
 
 export const Grid: React.FC = () => {
-  const { grid, setWall, isPaused, toggleVisualization, resetGrid, setAlgorithm } = useGrid();
+  const { grid, setWall, isPaused, toggleVisualization, resetGrid, setAlgorithm } = useVisualizer();
 
   const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     if (event.target.value === "Dijkstra's") {

@@ -20,7 +20,7 @@ const TARGET_COORD = {
   y: 15,
 };
 
-export const useGrid = () => {
+export const useVisualizer = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isPaused, setIsPaused] = useState(false);
