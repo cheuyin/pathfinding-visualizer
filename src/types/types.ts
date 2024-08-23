@@ -1,7 +1,6 @@
 import { NodeType } from './enums';
 
 export interface Node {
-  id: string;
   x: number;
   y: number;
   prevNode: Node | null;

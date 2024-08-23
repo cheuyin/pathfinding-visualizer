@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
-import { v4 as uuidv4 } from 'uuid';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { assert } from '../utils/utils';
 import { Algorithm } from '../types/types';
@@ -35,7 +34,9 @@ export const useVisualizer = () => {
 
     setGrid((prevGrid) => {
       return prevGrid.map((prevRow) =>
-        prevRow.map((prevNode) => (prevNode.id === nodeCopy.id ? nodeCopy : prevNode)),
+        prevRow.map((prevNode) =>
+          prevNode.x === nodeCopy.x && prevNode.y === nodeCopy.y ? nodeCopy : prevNode,
+        ),
       );
     });
   };
@@ -88,7 +89,6 @@ const createInitialGrid = (numRows: number, numCols: number): GridType => {
     const col = [];
     for (let j = 0; j < numCols; j++) {
       const node: Node = {
-        id: uuidv4(),
         x: j,
         y: i,
         prevNode: null,
