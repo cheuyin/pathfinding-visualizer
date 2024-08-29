@@ -55,6 +55,7 @@ export const dijkstra = (grid: Grid, sourceCoord: Coord): Coord[] => {
     currCoord = findUnvisitedNodeWithShortestDistance(dijkstraGrid);
   }
 
+  nodesToVisit.shift(); // Remove the source node from the path.
   return nodesToVisit;
 };
 
