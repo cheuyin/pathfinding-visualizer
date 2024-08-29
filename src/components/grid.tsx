@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { GridCell } from './grid-cell';
 import { useVisualizer } from '../hooks/use-visualizer';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
-import { aStar } from '../utils/pathfinding-algorithms/a-star';
+// import { aStar } from '../utils/pathfinding-algorithms/a-star';
 
 export const Grid: React.FC = () => {
-  const { grid, setWall, isPaused, toggleVisualization, resetGrid, setAlgorithm } = useVisualizer();
+  const { grid, setWall, visualize, resetGrid, setAlgorithm } = useVisualizer();
 
   const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     if (event.target.value === "Dijkstra's") {
@@ -13,10 +13,10 @@ export const Grid: React.FC = () => {
       return;
     }
 
-    if (event.target.value === 'A*') {
-      setAlgorithm(() => aStar);
-      return;
-    }
+    // if (event.target.value === 'A*') {
+    //   setAlgorithm(() => aStar);
+    //   return;
+    // }
   };
 
   return (
@@ -32,11 +32,11 @@ export const Grid: React.FC = () => {
           ))}
         </tbody>
       </Table>
-      <button onClick={toggleVisualization}>{isPaused ? 'Start' : 'Pause'}</button>
+      <button onClick={visualize}>{'Visualize'}</button>
       <button onClick={resetGrid}>Reset</button>
       <select onChange={handleAlgorithmSelection}>
         <option value="Dijkstra's">Dijkstra's</option>
-        <option value="A*">A*</option>
+        {/* <option value="A*">A*</option> */}
       </select>
     </div>
   );

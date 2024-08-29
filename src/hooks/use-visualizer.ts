@@ -1,34 +1,31 @@
-import { useEffect, useState } from 'react';
-import { Grid as GridType } from '../types/types';
+import { useState } from 'react';
+import { Coord, Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
-import { assert } from '../utils/utils';
 import { Algorithm } from '../types/types';
 
 const NUM_GRID_COLS = 50;
 const NUM_GRID_ROWS = 30;
 
-const SOURCE_COORD = {
+const SOURCE_COORD: Coord = {
   x: 10,
   y: 10,
 };
 
-const TARGET_COORD = {
-  x: 25,
-  y: 15,
+const TARGET_COORD: Coord = {
+  x: 35,
+  y: 25,
 };
 
 export const useVisualizer = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isFinished, setIsFinished] = useState(false);
 
   const setWall = (node: Node) => {
     const nodeCopy = { ...node };
 
-    if (nodeCopy.type === NodeType.BLANK && !nodeCopy.visited) {
+    if (nodeCopy.type === NodeType.BLANK) {
       nodeCopy.type = NodeType.WALL;
     }
 
@@ -41,46 +38,29 @@ export const useVisualizer = () => {
     });
   };
 
-  const toggleVisualization = () => {
-    setIsPaused((prev) => !prev);
+  /**
+   * Visualizes the selected algorithm by rapidly changing the state of individual nodes.
+   */
+  const visualize = () => {
+    const pathToVisit = algorithm(grid, SOURCE_COORD, TARGET_COORD);
+
+    pathToVisit.forEach((coord) => {
+      setTimeout(() => {
+        setGrid((prevGrid) => {
+          const newGrid = [...prevGrid];
+          const nodeToUpdate = newGrid[coord.y][coord.x];
+          nodeToUpdate.type = NodeType.PATH;
+          return newGrid;
+        });
+      }, 1);
+    });
   };
 
   const resetGrid = () => {
     setGrid(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
-    setIsFinished(false);
   };
 
-  useEffect(() => {
-    if (isPaused || isFinished) {
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      setGrid((prevGrid) => {
-        const gridCopy = prevGrid.map((row) => row.map((node) => ({ ...node })));
-        const newGrid = algorithm(gridCopy);
-
-        if (!newGrid) {
-          setIsFinished(true);
-          clearInterval(intervalId);
-          return prevGrid;
-        } else if (isTargetVisited(newGrid)) {
-          setIsFinished(true);
-          const gridWithMarkedPath = markPathOnGrid(newGrid);
-          clearInterval(intervalId);
-          return gridWithMarkedPath;
-        } else {
-          return newGrid;
-        }
-      });
-    }, 1);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [isPaused, isFinished, algorithm]);
-
-  return { grid, setWall, isPaused, toggleVisualization, resetGrid, setAlgorithm };
+  return { grid, setWall, visualize, resetGrid, setAlgorithm };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {
@@ -91,16 +71,11 @@ const createInitialGrid = (numRows: number, numCols: number): GridType => {
       const node: Node = {
         x: j,
         y: i,
-        prevNode: null,
         type: NodeType.BLANK,
-        distance: Number.POSITIVE_INFINITY,
-        visited: false,
-        hScore: 0,
       };
 
       if (j == SOURCE_COORD.x && i == SOURCE_COORD.y) {
         node.type = NodeType.SOURCE;
-        node.distance = 0;
       } else if (j == TARGET_COORD.x && i == TARGET_COORD.y) {
         node.type = NodeType.TARGET;
       }
@@ -109,41 +84,5 @@ const createInitialGrid = (numRows: number, numCols: number): GridType => {
     }
     grid.push(col);
   }
-  return grid;
-};
-
-const isTargetVisited = (grid: GridType): boolean => {
-  for (const row of grid) {
-    for (const node of row) {
-      if (node.type === NodeType.TARGET && node.visited) {
-        return true;
-      }
-    }
-  }
-  return false;
-};
-
-const markPathOnGrid = (grid: GridType): GridType => {
-  let target: Node | null = null;
-
-  for (const row of grid) {
-    for (const node of row) {
-      if (node.type === NodeType.TARGET) {
-        target = node;
-        break;
-      }
-    }
-    if (target) break;
-  }
-
-  assert(target !== null, 'target should not be null');
-
-  let currNode: Node | null = (target as Node).prevNode;
-  while (currNode && currNode.prevNode) {
-    const newNode = grid[currNode.y][currNode.x];
-    newNode.type = NodeType.PATH;
-    currNode = currNode.prevNode;
-  }
-
   return grid;
 };

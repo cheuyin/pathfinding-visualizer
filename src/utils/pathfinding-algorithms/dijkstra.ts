@@ -1,41 +1,65 @@
 import { NodeType } from '../../types/enums';
-import { Grid } from '../../types/types';
+import { Coord, Grid } from '../../types/types';
 import { Node } from '../../types/types';
 
-/**
- * Runs Dijkstra's algorithm on one node
- *
- * Returns false if the algorithm should stop
- *
- */
-export const dijkstra = (grid: Grid): Grid | false => {
-  const unvisitedNodeWithShortestDistance = findUnvisitedNodeWithShortestDistance(grid);
+interface DijkstraNode extends Node {
+  distance: number;
+  visited: boolean;
+  prevCoord: Coord | null;
+}
 
-  if (!unvisitedNodeWithShortestDistance) {
-    return false;
-  }
+type DijkstraGrid = DijkstraNode[][];
 
-  const unvisitedNeighbours: Node[] = findUnvisitedNeighbours(
-    grid,
-    unvisitedNodeWithShortestDistance.x,
-    unvisitedNodeWithShortestDistance.y,
+export const dijkstra = (grid: Grid, sourceCoord: Coord): Coord[] => {
+  /**
+   * 1. Convert nodes into Dijkstra nodes for the purpose of this algorithm.
+   * 2. Starting at the source node, run the algorithm until completion.
+   * 3. Return array of coords.
+   */
+
+  const dijkstraGrid: DijkstraNode[][] = grid.map((row) =>
+    row.map((node) => {
+      return {
+        ...node,
+        distance: Number.POSITIVE_INFINITY,
+        visited: false,
+        prevCoord: null,
+      };
+    }),
   );
 
-  for (const n of unvisitedNeighbours) {
-    const currDist = unvisitedNodeWithShortestDistance.distance + 1;
-    if (currDist < n.distance) {
-      n.distance = currDist;
-      n.prevNode = unvisitedNodeWithShortestDistance;
+  dijkstraGrid[sourceCoord.y][sourceCoord.x].distance = 0;
+
+  const nodesToVisit: Coord[] = [];
+
+  let currCoord = findUnvisitedNodeWithShortestDistance(dijkstraGrid);
+
+  while (currCoord) {
+    if (dijkstraGrid[currCoord.y][currCoord.x].type === NodeType.TARGET) {
+      break;
     }
+
+    const unvisitedNeighbours: Coord[] = findUnvisitedNeighbours(dijkstraGrid, currCoord);
+
+    for (const c of unvisitedNeighbours) {
+      const currDist = dijkstraGrid[currCoord.y][currCoord.x].distance + 1;
+      if (currDist < dijkstraGrid[c.y][c.x].distance) {
+        dijkstraGrid[c.y][c.x].distance = currDist;
+        dijkstraGrid[c.y][c.x].prevCoord = currCoord;
+      }
+    }
+
+    dijkstraGrid[currCoord.y][currCoord.x].visited = true;
+    nodesToVisit.push(currCoord);
+
+    currCoord = findUnvisitedNodeWithShortestDistance(dijkstraGrid);
   }
 
-  unvisitedNodeWithShortestDistance.visited = true;
-
-  return grid;
+  return nodesToVisit;
 };
 
-const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
-  let res: Node | null = null;
+const findUnvisitedNodeWithShortestDistance = (grid: DijkstraGrid): Coord | false => {
+  let res: Coord | false = false;
 
   for (const row of grid) {
     for (const node of row) {
@@ -46,7 +70,7 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
       ) {
         continue;
       }
-      if (!res || node.distance < res.distance) {
+      if (!res || node.distance < grid[res.y][res.x].distance) {
         res = node;
       }
     }
@@ -55,29 +79,29 @@ const findUnvisitedNodeWithShortestDistance = (grid: Grid): Node | null => {
   return res;
 };
 
-const findUnvisitedNeighbours = (grid: Grid, nodeX: number, nodeY: number): Node[] => {
+const findUnvisitedNeighbours = (grid: DijkstraGrid, coord: Coord): Coord[] => {
   const numRows = grid.length;
   const numCols = grid[0].length;
 
-  const unvisitedNeighbours: Node[] = [];
+  const unvisitedNeighbours: Coord[] = [];
 
-  if (nodeX > 0) {
-    const n = grid[nodeY][nodeX - 1];
+  if (coord.x > 0) {
+    const n = grid[coord.y][coord.x - 1];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeX < numCols - 1) {
-    const n = grid[nodeY][nodeX + 1];
+  if (coord.x < numCols - 1) {
+    const n = grid[coord.y][coord.x + 1];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeY > 0) {
-    const n = grid[nodeY - 1][nodeX];
+  if (coord.y > 0) {
+    const n = grid[coord.y - 1][coord.x];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeY < numRows - 1) {
-    const n = grid[nodeY + 1][nodeX];
+  if (coord.y < numRows - 1) {
+    const n = grid[coord.y + 1][coord.x];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
