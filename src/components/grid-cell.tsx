@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { Node } from '../types/types';
 import { NodeType } from '../types/enums';
+import './grid-cell.css';
 
 interface GridCellProps {
   node: Node;
@@ -8,41 +8,20 @@ interface GridCellProps {
 }
 
 export const GridCell: React.FC<GridCellProps> = ({ node, onClick }) => {
+  const additionalClassName =
+    node.type === NodeType.SOURCE
+      ? 'GridCell--source'
+      : node.type === NodeType.TARGET
+      ? 'GridCell--target'
+      : node.type === NodeType.WALL
+      ? 'GridCell--wall'
+      : null;
+
   return (
-    <Cell
-      $bgColor={getBackgroundColor(node.type, node.visited)}
+    <td
+      id={`GridCell-${node.x}-${node.y}`}
+      className={`GridCell ${additionalClassName}`}
       onClick={() => onClick && onClick(node)}
     />
   );
-};
-
-const Cell = styled.td<{ $bgColor: string }>`
-  border: 1px solid black;
-  width: 25px;
-  height: 25px;
-  background-color: ${(props) => props.$bgColor};
-`;
-
-const getBackgroundColor = (type: NodeType, isVisited: boolean): string => {
-  if (type === NodeType.SOURCE) {
-    return 'green';
-  }
-
-  if (type === NodeType.TARGET) {
-    return 'red';
-  }
-
-  if (type === NodeType.PATH) {
-    return 'lightblue';
-  }
-
-  if (type === NodeType.WALL) {
-    return 'gray';
-  }
-
-  if (isVisited) {
-    return 'yellow';
-  }
-
-  return '';
 };

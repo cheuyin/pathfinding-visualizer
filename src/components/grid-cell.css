@@ -1,0 +1,26 @@
+.GridCell {
+  border: 1px solid black;
+  width: 25px;
+  height: 25px;
+}
+
+.GridCell--source {
+  background-color: green;
+}
+
+.GridCell--target {
+  background-color: red;
+}
+
+.GridCell--wall {
+  background-color: gray;
+}
+
+.GridCell--visited {
+  background-color: lightblue;
+}
+
+.GridCell--path {
+  background-color: yellow;
+}
+

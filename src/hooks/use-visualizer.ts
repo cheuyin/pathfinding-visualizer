@@ -5,7 +5,7 @@ import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 
-const NUM_GRID_COLS = 50;
+const NUM_GRID_COLS = 70;
 const NUM_GRID_ROWS = 30;
 
 const SOURCE_COORD: Coord = {
@@ -14,7 +14,7 @@ const SOURCE_COORD: Coord = {
 };
 
 const TARGET_COORD: Coord = {
-  x: 35,
+  x: 55,
   y: 25,
 };
 
@@ -41,26 +41,44 @@ export const useVisualizer = () => {
   /**
    * Visualizes the selected algorithm by rapidly changing the state of individual nodes.
    */
-  const visualize = () => {
-    const pathToVisit = algorithm(grid, SOURCE_COORD, TARGET_COORD);
+  const animate = () => {
+    const algoResult = algorithm(grid, SOURCE_COORD, TARGET_COORD);
 
-    pathToVisit.forEach((coord) => {
+    algoResult.visitedNodes.pop();
+    algoResult.visitedNodes.shift();
+    algoResult.pathToTarget.pop();
+    algoResult.pathToTarget.shift();
+
+    for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
+      if (i == algoResult.visitedNodes.length) {
+        setTimeout(() => {
+          animatePath(algoResult.pathToTarget);
+        }, 5 * i);
+        return;
+      }
       setTimeout(() => {
-        setGrid((prevGrid) => {
-          const newGrid = [...prevGrid];
-          const nodeToUpdate = newGrid[coord.y][coord.x];
-          nodeToUpdate.type = NodeType.PATH;
-          return newGrid;
-        });
-      }, 1);
-    });
+        const coord = algoResult.visitedNodes[i];
+        const gridCell = document.getElementById(`GridCell-${coord.x}-${coord.y}`);
+        gridCell?.classList.add('GridCell--visited');
+      }, 5 * i);
+    }
+  };
+
+  const animatePath = (path: Coord[]) => {
+    for (let i = 0; i < path.length; i++) {
+      setTimeout(() => {
+        const coord = path[i];
+        const gridCell = document.getElementById(`GridCell-${coord.x}-${coord.y}`);
+        gridCell?.classList.add('GridCell--path');
+      }, 25 * i);
+    }
   };
 
   const resetGrid = () => {
     setGrid(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   };
 
-  return { grid, setWall, visualize, resetGrid, setAlgorithm };
+  return { grid, setWall, animate, resetGrid, setAlgorithm };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {

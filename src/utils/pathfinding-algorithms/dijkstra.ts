@@ -10,13 +10,7 @@ interface DijkstraNode extends Node {
 
 type DijkstraGrid = DijkstraNode[][];
 
-export const dijkstra = (grid: Grid, sourceCoord: Coord): Coord[] => {
-  /**
-   * 1. Convert nodes into Dijkstra nodes for the purpose of this algorithm.
-   * 2. Starting at the source node, run the algorithm until completion.
-   * 3. Return array of coords.
-   */
-
+export const dijkstra = (grid: Grid, sourceCoord: Coord, targetCoord: Coord) => {
   const dijkstraGrid: DijkstraNode[][] = grid.map((row) =>
     row.map((node) => {
       return {
@@ -30,12 +24,15 @@ export const dijkstra = (grid: Grid, sourceCoord: Coord): Coord[] => {
 
   dijkstraGrid[sourceCoord.y][sourceCoord.x].distance = 0;
 
-  const nodesToVisit: Coord[] = [];
+  const visited: Coord[] = [];
+  let pathToTarget: Coord[] = [];
 
   let currCoord = findUnvisitedNodeWithShortestDistance(dijkstraGrid);
 
   while (currCoord) {
     if (dijkstraGrid[currCoord.y][currCoord.x].type === NodeType.TARGET) {
+      visited.push(currCoord);
+      pathToTarget = buildPathToTarget(dijkstraGrid, targetCoord);
       break;
     }
 
@@ -50,13 +47,36 @@ export const dijkstra = (grid: Grid, sourceCoord: Coord): Coord[] => {
     }
 
     dijkstraGrid[currCoord.y][currCoord.x].visited = true;
-    nodesToVisit.push(currCoord);
+    visited.push(currCoord);
 
     currCoord = findUnvisitedNodeWithShortestDistance(dijkstraGrid);
   }
 
-  nodesToVisit.shift(); // Remove the source node from the path.
-  return nodesToVisit;
+  return {
+    visitedNodes: visited,
+    pathToTarget: pathToTarget,
+  };
+};
+
+const buildPathToTarget = (dijkstraGrid: DijkstraGrid, targetCoord: Coord): Coord[] => {
+  const path: Coord[] = [];
+
+  let currNode = dijkstraGrid[targetCoord.y][targetCoord.x];
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    path.push(currNode);
+    const prev = currNode.prevCoord;
+    if (prev) {
+      currNode = dijkstraGrid[prev.y][prev.x];
+    } else {
+      break;
+    }
+  }
+
+  path.reverse();
+
+  return path;
 };
 
 const findUnvisitedNodeWithShortestDistance = (grid: DijkstraGrid): Coord | false => {

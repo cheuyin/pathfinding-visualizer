@@ -13,4 +13,11 @@ export interface Coord {
   y: number;
 }
 
-export type Algorithm = (grid: Grid, startCoord: Coord, targetCoord: Coord) => Coord[];
+export type Algorithm = (
+  grid: Grid,
+  startCoord: Coord,
+  targetCoord: Coord,
+) => {
+  visitedNodes: Coord[];
+  pathToTarget: Coord[];
+};
