@@ -3,6 +3,7 @@ import { GridCell } from './grid-cell';
 import { useVisualizer } from '../hooks/use-visualizer';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { aStar } from '../utils/pathfinding-algorithms/a-star';
+import { dfs } from '../utils/pathfinding-algorithms/dfs';
 
 export const Grid: React.FC = () => {
   const { grid, setWall, isVisualizing, animate, resetGrid, resetVisualization, setAlgorithm } =
@@ -16,6 +17,11 @@ export const Grid: React.FC = () => {
 
     if (event.target.value === 'A*') {
       setAlgorithm(() => aStar);
+      return;
+    }
+
+    if (event.target.value === 'DFS') {
+      setAlgorithm(() => dfs);
       return;
     }
   };
@@ -41,6 +47,7 @@ export const Grid: React.FC = () => {
       <select onChange={handleAlgorithmSelection} disabled={isVisualizing}>
         <option value="Dijkstra's">Dijkstra's</option>
         <option value="A*">A*</option>
+        <option value="DFS">DFS</option>
       </select>
     </div>
   );

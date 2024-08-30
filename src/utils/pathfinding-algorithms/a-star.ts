@@ -125,13 +125,13 @@ const findUnvisitedNeighbours = (grid: AStarGrid, coord: Coord): Coord[] => {
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (coord.x < numCols - 1) {
-    const n = grid[coord.y][coord.x + 1];
+  if (coord.y > 0) {
+    const n = grid[coord.y - 1][coord.x];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (coord.y > 0) {
-    const n = grid[coord.y - 1][coord.x];
+  if (coord.x < numCols - 1) {
+    const n = grid[coord.y][coord.x + 1];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 

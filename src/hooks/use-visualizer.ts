@@ -84,7 +84,7 @@ export const useVisualizer = () => {
               const coord = algoResult.pathToTarget[j];
               const node = gridCopy[coord.y][coord.x];
               updateNode(node);
-            }, 25 * j);
+            }, 10 * j);
             timoutIdsRef.current.push(animation2);
           }
         }, 1 * i);
