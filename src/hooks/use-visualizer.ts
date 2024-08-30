@@ -5,7 +5,7 @@ import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 
-const NUM_GRID_COLS = 200;
+const NUM_GRID_COLS = 100;
 const NUM_GRID_ROWS = 50;
 
 const SOURCE_COORD: Coord = {
@@ -14,16 +14,19 @@ const SOURCE_COORD: Coord = {
 };
 
 const TARGET_COORD: Coord = {
-  x: 155,
+  x: 88,
   y: 45,
 };
 
 export const useVisualizer = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
+  const [isVisualizing, setIsVisualizing] = useState(false);
   const timoutIdsRef = useRef([] as number[]);
 
   const setWall = (node: Node) => {
+    if (isVisualizing) return false;
+
     const nodeCopy = { ...node };
 
     if (nodeCopy.type === NodeType.BLANK) {
@@ -51,6 +54,8 @@ export const useVisualizer = () => {
   };
 
   const animate = () => {
+    setIsVisualizing(true);
+
     const algoResult = algorithm(grid, SOURCE_COORD, TARGET_COORD);
 
     const gridCopy: GridType = grid.map((row) =>
@@ -93,6 +98,7 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
+    setIsVisualizing(false);
     timoutIdsRef.current.forEach((timeoutId) => {
       clearTimeout(timeoutId);
     });
@@ -101,7 +107,7 @@ export const useVisualizer = () => {
     setGrid(newGrid);
   };
 
-  return { grid, setWall, animate, resetGrid, setAlgorithm };
+  return { grid, setWall, animate, resetGrid, setAlgorithm, isVisualizing };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {
