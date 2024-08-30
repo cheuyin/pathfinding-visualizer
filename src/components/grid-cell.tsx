@@ -13,8 +13,8 @@ export const GridCell: React.FC<GridCellProps> = ({ node, onClick }) => {
 
 const Cell = styled.td<{ $bgColor: string }>`
   border: 1px solid black;
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   background-color: ${(props) => props.$bgColor};
 `;
 

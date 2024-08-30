@@ -6,7 +6,7 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 
 const NUM_GRID_COLS = 100;
-const NUM_GRID_ROWS = 50;
+const NUM_GRID_ROWS = 40;
 
 const SOURCE_COORD: Coord = {
   x: 10,
@@ -14,8 +14,8 @@ const SOURCE_COORD: Coord = {
 };
 
 const TARGET_COORD: Coord = {
-  x: 88,
-  y: 45,
+  x: 85,
+  y: 12,
 };
 
 export const useVisualizer = () => {
@@ -23,6 +23,7 @@ export const useVisualizer = () => {
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
   const timoutIdsRef = useRef([] as number[]);
+
 
   const setWall = (node: Node) => {
     if (isVisualizing) return false;

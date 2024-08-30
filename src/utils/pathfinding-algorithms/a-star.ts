@@ -1,68 +1,111 @@
 import { NodeType } from '../../types/enums';
-import { Grid } from '../../types/types';
+import { Algorithm, Coord, Grid } from '../../types/types';
 import { Node } from '../../types/types';
 
-/**
- * Runs the A Star algorithm on one node
- *
- * Returns false if the algorithm should stop
- *
- */
-export const aStar = (grid: Grid): Grid | false => {
-  let target: Node | null = null;
+interface AStarNode extends Node {
+  visited: boolean;
+  prevCoord: Coord | null;
+  g: number;
+  h: number;
+  f: number;
+}
 
-  for (const row of grid) {
-    for (const node of row) {
-      if (node.type === NodeType.TARGET) {
-        target = node;
-      }
-    }
-  }
+type AStarGrid = AStarNode[][];
 
-  if (!target) {
-    return false;
-  }
-
-  calculateHScores(grid, target);
-
-  const unvisitedNodeWithLowestCost = findUnvisitedNodeWithLowestCost(grid);
-
-  if (!unvisitedNodeWithLowestCost) {
-    return false;
-  }
-
-  const unvisitedNeighbours: Node[] = findUnvisitedNeighbours(
-    grid,
-    unvisitedNodeWithLowestCost.x,
-    unvisitedNodeWithLowestCost.y,
+export const aStar: Algorithm = (grid: Grid, sourceCoord: Coord, targetCoord: Coord) => {
+  const aStarGrid: AStarNode[][] = grid.map((row) =>
+    row.map((node) => {
+      return {
+        ...node,
+        g: Number.POSITIVE_INFINITY,
+        h: Number.POSITIVE_INFINITY,
+        f: Number.POSITIVE_INFINITY,
+        visited: false,
+        prevCoord: null,
+      };
+    }),
   );
 
-  for (const n of unvisitedNeighbours) {
-    const currDist = unvisitedNodeWithLowestCost.distance + 1;
-    if (currDist < n.distance) {
-      n.distance = currDist;
-      n.prevNode = unvisitedNodeWithLowestCost;
+  aStarGrid.forEach((row) =>
+    row.forEach((node) => {
+      node.h = calculateHScore(node, targetCoord);
+    }),
+  );
+
+  const startNode = aStarGrid[sourceCoord.y][sourceCoord.x];
+  startNode.g = 0;
+  startNode.f = startNode.h;
+
+  const visited: Coord[] = [];
+  let pathToTarget: Coord[] = [];
+
+  let currCoord = findUnvisitedNodeWithLowestFScore(aStarGrid);
+
+  while (currCoord) {
+    if (aStarGrid[currCoord.y][currCoord.x].type === NodeType.TARGET) {
+      visited.push(currCoord);
+      pathToTarget = buildPathToTarget(aStarGrid, targetCoord);
+      break;
+    }
+
+    const unvisitedNeighbours: Coord[] = findUnvisitedNeighbours(aStarGrid, currCoord);
+
+    for (const c of unvisitedNeighbours) {
+      const currDist = aStarGrid[currCoord.y][currCoord.x].g + 1;
+      const neighbour = aStarGrid[c.y][c.x];
+      if (currDist < neighbour.g) {
+        neighbour.g = currDist;
+        neighbour.f = neighbour.g + neighbour.h;
+        neighbour.prevCoord = currCoord;
+      }
+    }
+
+    aStarGrid[currCoord.y][currCoord.x].visited = true;
+    visited.push(currCoord);
+
+    currCoord = findUnvisitedNodeWithLowestFScore(aStarGrid);
+  }
+
+  return {
+    visitedNodes: visited,
+    pathToTarget: pathToTarget,
+  };
+};
+
+const calculateHScore = (node: Node, targetCoord: Coord) => {
+  return Math.abs(node.x - targetCoord.x) + Math.abs(node.y - targetCoord.y);
+};
+
+const buildPathToTarget = (aStarGrid: AStarGrid, targetCoord: Coord): Coord[] => {
+  const path: Coord[] = [];
+
+  let currNode = aStarGrid[targetCoord.y][targetCoord.x];
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    path.push(currNode);
+    const prev = currNode.prevCoord;
+    if (prev) {
+      currNode = aStarGrid[prev.y][prev.x];
+    } else {
+      break;
     }
   }
 
-  unvisitedNodeWithLowestCost.visited = true;
+  path.reverse();
 
-  return grid;
+  return path;
 };
 
-const findUnvisitedNodeWithLowestCost = (grid: Grid): Node | null => {
-  let res: Node | null = null;
+const findUnvisitedNodeWithLowestFScore = (grid: AStarGrid): Coord | false => {
+  let res: Coord | false = false;
 
   for (const row of grid) {
     for (const node of row) {
-      if (
-        node.visited ||
-        node.distance === Number.POSITIVE_INFINITY ||
-        node.type === NodeType.WALL
-      ) {
+      if (node.visited || node.f === Number.POSITIVE_INFINITY || node.type === NodeType.WALL) {
         continue;
       }
-      if (!res || node.distance + node.hScore < res.distance + res.hScore) {
+      if (!res || node.f < grid[res.y][res.x].f) {
         res = node;
       }
     }
@@ -71,55 +114,31 @@ const findUnvisitedNodeWithLowestCost = (grid: Grid): Node | null => {
   return res;
 };
 
-const findUnvisitedNeighbours = (grid: Grid, nodeX: number, nodeY: number): Node[] => {
+const findUnvisitedNeighbours = (grid: AStarGrid, coord: Coord): Coord[] => {
   const numRows = grid.length;
   const numCols = grid[0].length;
 
-  const unvisitedNeighbours: Node[] = [];
+  const unvisitedNeighbours: Coord[] = [];
 
-  if (nodeX > 0) {
-    const n = grid[nodeY][nodeX - 1];
+  if (coord.x > 0) {
+    const n = grid[coord.y][coord.x - 1];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeX < numCols - 1) {
-    const n = grid[nodeY][nodeX + 1];
+  if (coord.x < numCols - 1) {
+    const n = grid[coord.y][coord.x + 1];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeY > 0) {
-    const n = grid[nodeY - 1][nodeX];
+  if (coord.y > 0) {
+    const n = grid[coord.y - 1][coord.x];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
-  if (nodeY < numRows - 1) {
-    const n = grid[nodeY + 1][nodeX];
+  if (coord.y < numRows - 1) {
+    const n = grid[coord.y + 1][coord.x];
     if (!n.visited && n.type !== NodeType.WALL) unvisitedNeighbours.push(n);
   }
 
   return unvisitedNeighbours;
-};
-
-const calculateHScores = (grid: Grid, targetNode: Node) => {
-  for (const row of grid) {
-    for (const node of row) {
-      node.hScore = calculateHScore(node, targetNode);
-    }
-  }
-};
-
-/**
- * The h-score is what differentiates A* from Dikstra's.
- *
- * This score will be added to the distance of each node.
- *
- * Thus, nodes that are closer to the target will be prioritized, all else equal.
- *
- * For this implementation of the h-score, I will be using Manhattan Distance
- *
- * Assumptions:
- * - Nodes can only move vertically or horizontally
- */
-const calculateHScore = (currNode: Node, targetNode: Node) => {
-  return Math.abs(targetNode.x - currNode.x) + Math.abs(targetNode.y - currNode.y);
 };

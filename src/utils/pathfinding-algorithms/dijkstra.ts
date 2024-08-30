@@ -1,5 +1,5 @@
 import { NodeType } from '../../types/enums';
-import { Coord, Grid } from '../../types/types';
+import { Algorithm, Coord, Grid } from '../../types/types';
 import { Node } from '../../types/types';
 
 interface DijkstraNode extends Node {
@@ -10,7 +10,7 @@ interface DijkstraNode extends Node {
 
 type DijkstraGrid = DijkstraNode[][];
 
-export const dijkstra = (grid: Grid, sourceCoord: Coord, targetCoord: Coord) => {
+export const dijkstra: Algorithm = (grid: Grid, sourceCoord: Coord, targetCoord: Coord) => {
   const dijkstraGrid: DijkstraNode[][] = grid.map((row) =>
     row.map((node) => {
       return {
