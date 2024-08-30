@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
@@ -6,8 +6,8 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { paintCell } from '../utils/utils';
 
-const NUM_GRID_COLS = 70;
-const NUM_GRID_ROWS = 30;
+const NUM_GRID_COLS = 200;
+const NUM_GRID_ROWS = 75;
 
 const SOURCE_COORD: Coord = {
   x: 10,
@@ -15,13 +15,14 @@ const SOURCE_COORD: Coord = {
 };
 
 const TARGET_COORD: Coord = {
-  x: 55,
-  y: 25,
+  x: 155,
+  y: 45,
 };
 
 export const useVisualizer = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
+  const timoutIdsRef = useRef([] as number[]);
 
   useEffect(() => {
     grid.forEach((row) => row.forEach((node) => paintCell(node)));
@@ -64,34 +65,41 @@ export const useVisualizer = () => {
 
     for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
       if (i === algoResult.visitedNodes.length) {
-        setTimeout(() => {
+        const animation1 = setTimeout(() => {
           algoResult.pathToTarget.forEach((pathToTarget) => {
             gridCopy[pathToTarget.y][pathToTarget.x].type = NodeType.PATH;
           });
           for (let j = 0; j < algoResult.pathToTarget.length; j++) {
-            setTimeout(() => {
+            const animation2 = setTimeout(() => {
               const coord = algoResult.pathToTarget[j];
               const node = gridCopy[coord.y][coord.x];
               paintCell(node);
             }, 25 * j);
+            timoutIdsRef.current.push(animation2);
           }
         }, 5 * i);
+        timoutIdsRef.current.push(animation1);
         return;
       }
-      setTimeout(() => {
+      const animation3 = setTimeout(() => {
         const coord = algoResult.visitedNodes[i];
         const node = gridCopy[coord.y][coord.x];
         paintCell(node);
       }, 5 * i);
+      timoutIdsRef.current.push(animation3);
     }
 
     setGrid(gridCopy);
   };
 
   const resetGrid = () => {
+    timoutIdsRef.current.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    timoutIdsRef.current = [];
     const newGrid = createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS);
     setGrid(newGrid);
-    newGrid.map((row) => row.map((node) => paintCell(node)));
+    newGrid.forEach((row) => row.forEach((node) => paintCell(node)));
   };
 
   return { grid, setWall, animate, resetGrid, setAlgorithm };
