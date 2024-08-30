@@ -5,7 +5,8 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 // import { aStar } from '../utils/pathfinding-algorithms/a-star';
 
 export const Grid: React.FC = () => {
-  const { grid, setWall, isVisualizing, animate, resetGrid, setAlgorithm } = useVisualizer();
+  const { grid, setWall, isVisualizing, animate, resetGrid, resetVisualization, setAlgorithm } =
+    useVisualizer();
 
   const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     if (event.target.value === "Dijkstra's") {
@@ -35,7 +36,8 @@ export const Grid: React.FC = () => {
       <button onClick={animate} disabled={isVisualizing}>
         {'Visualize'}
       </button>
-      <button onClick={resetGrid}>Reset</button>
+      <button onClick={resetGrid}>Reset Grid</button>
+      <button onClick={resetVisualization}>Reset Visualization</button>
       <select onChange={handleAlgorithmSelection} disabled={isVisualizing}>
         <option value="Dijkstra's">Dijkstra's</option>
         {/* <option value="A*">A*</option> */}

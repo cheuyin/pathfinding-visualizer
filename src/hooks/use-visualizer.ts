@@ -65,6 +65,8 @@ export const useVisualizer = () => {
     );
 
     algoResult.visitedNodes.forEach((visitedCoord) => {
+      const node = gridCopy[visitedCoord.y][visitedCoord.x];
+      if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
       gridCopy[visitedCoord.y][visitedCoord.x].type = NodeType.VISITED;
     });
 
@@ -72,7 +74,9 @@ export const useVisualizer = () => {
       if (i === algoResult.visitedNodes.length) {
         const animation1 = setTimeout(() => {
           algoResult.pathToTarget.forEach((pathToTarget) => {
-            gridCopy[pathToTarget.y][pathToTarget.x].type = NodeType.PATH;
+            const node = gridCopy[pathToTarget.y][pathToTarget.x];
+            if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
+            node.type = NodeType.PATH;
           });
           for (let j = 0; j < algoResult.pathToTarget.length; j++) {
             const animation2 = setTimeout(() => {
@@ -107,7 +111,27 @@ export const useVisualizer = () => {
     setGrid(newGrid);
   };
 
-  return { grid, setWall, animate, resetGrid, setAlgorithm, isVisualizing };
+  const resetVisualization = () => {
+    setIsVisualizing(false);
+    timoutIdsRef.current.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    timoutIdsRef.current = [];
+
+    const newGrid: GridType = grid.map((row) =>
+      row.map((node) => {
+        if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
+          return { ...node, type: NodeType.BLANK };
+        } else {
+          return { ...node };
+        }
+      }),
+    );
+
+    setGrid(newGrid);
+  };
+
+  return { grid, setWall, animate, resetGrid, resetVisualization, setAlgorithm, isVisualizing };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {
