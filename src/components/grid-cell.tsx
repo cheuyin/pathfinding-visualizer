@@ -1,5 +1,6 @@
+import styled from 'styled-components';
 import { Node } from '../types/types';
-import './grid-cell.css';
+import { NodeType } from '../types/enums';
 
 interface GridCellProps {
   node: Node;
@@ -7,11 +8,36 @@ interface GridCellProps {
 }
 
 export const GridCell: React.FC<GridCellProps> = ({ node, onClick }) => {
-  return (
-    <td
-      id={`GridCell-${node.x}-${node.y}`}
-      className={'GridCell'}
-      onClick={() => onClick && onClick(node)}
-    />
-  );
+  return <Cell $bgColor={getBackgroundColor(node.type)} onClick={() => onClick && onClick(node)} />;
+};
+
+const Cell = styled.td<{ $bgColor: string }>`
+  border: 1px solid black;
+  width: 10px;
+  height: 10px;
+  background-color: ${(props) => props.$bgColor};
+`;
+
+const getBackgroundColor = (type: NodeType): string => {
+  if (type === NodeType.SOURCE) {
+    return 'green';
+  }
+
+  if (type === NodeType.TARGET) {
+    return 'red';
+  }
+
+  if (type === NodeType.PATH) {
+    return 'yellow';
+  }
+
+  if (type === NodeType.WALL) {
+    return 'gray';
+  }
+
+  if (type === NodeType.VISITED) {
+    return 'lightblue';
+  }
+
+  return '';
 };
