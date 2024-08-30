@@ -4,4 +4,5 @@ export enum NodeType {
   WALL,
   PATH,
   BLANK,
+  VISITED,
 }
