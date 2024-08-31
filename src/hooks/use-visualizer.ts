@@ -95,22 +95,11 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
-    const newGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD);
-    setGrid(newGrid);
+    setGrid(createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD));
   };
 
   const resetVisualization = () => {
-    const newGrid: GridType = grid.map((row) =>
-      row.map((node) => {
-        if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
-          return { ...node, type: NodeType.BLANK };
-        } else {
-          return { ...node };
-        }
-      }),
-    );
-
-    setGrid(newGrid);
+    setGrid(createGridCopyWithNoPath(grid));
   };
 
   const generateMaze = () => {
