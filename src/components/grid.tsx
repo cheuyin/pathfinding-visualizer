@@ -4,6 +4,7 @@ import { useVisualizer } from '../hooks/use-visualizer';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { aStar } from '../utils/pathfinding-algorithms/a-star';
 import { dfs } from '../utils/pathfinding-algorithms/dfs';
+import { useEffect, useState } from 'react';
 
 export const Grid: React.FC = () => {
   const {
@@ -16,6 +17,8 @@ export const Grid: React.FC = () => {
     setAlgorithm,
     generateMaze,
   } = useVisualizer();
+
+  const [isMakingWalls, setIsMakingWalls] = useState(false);
 
   const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     if (event.target.value === "Dijkstra's") {
@@ -34,14 +37,35 @@ export const Grid: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const handleMouseUp = () => {
+      if (isMakingWalls) {
+        setIsMakingWalls(false);
+      }
+    };
+
+    if (isMakingWalls) {
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isMakingWalls]);
+
   return (
     <div>
       <Table>
-        <tbody>
+        <tbody onMouseDown={() => setIsMakingWalls(true)}>
           {grid.map((row, rowIdx) => (
             <tr key={rowIdx}>
               {row.map((node, colIdx) => (
-                <GridCell key={`${colIdx} ${rowIdx}`} node={node} onClick={setWall} />
+                <GridCell
+                  key={`${colIdx} ${rowIdx}`}
+                  node={node}
+                  isMakingWalls={isMakingWalls}
+                  onMakeWall={setWall}
+                />
               ))}
             </tr>
           ))}
