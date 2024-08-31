@@ -13,6 +13,7 @@ export const GridCell: React.FC<GridCellProps> = ({ node, isMakingWalls, onMakeW
     <Cell
       $bgColor={getBackgroundColor(node.type)}
       onMouseOver={() => isMakingWalls && onMakeWall && onMakeWall(node)}
+      onMouseDown={() => onMakeWall && onMakeWall(node)}
     />
   );
 };
