@@ -6,7 +6,7 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 
-const NUM_GRID_COLS = 100;
+const NUM_GRID_COLS = 110;
 const NUM_GRID_ROWS = 40;
 
 const SOURCE_COORD: Coord = {
@@ -16,7 +16,7 @@ const SOURCE_COORD: Coord = {
 
 const TARGET_COORD: Coord = {
   x: 85,
-  y: 12,
+  y: 36,
 };
 
 export const useVisualizer = () => {

@@ -26,11 +26,12 @@ export const recursiveBacktracking: MazeGenerationAlgorithm = (
 
   while (stack.length) {
     const currCoord = stack[stack.length - 1];
-    const nextCoord = findNextCoord(rbGrid, currCoord);
+    const nextCoord = findNextMove(rbGrid, currCoord);
 
     if (nextCoord) {
-      rbGrid[nextCoord.y][nextCoord.x].visited = true;
-      stack.push(nextCoord);
+      rbGrid[nextCoord.nextNodeToVisit.y][nextCoord.nextNodeToVisit.x].visited = true;
+      rbGrid[nextCoord.pathNode.y][nextCoord.pathNode.x].visited = true;
+      stack.push(nextCoord.nextNodeToVisit);
     } else {
       stack.pop();
     }
@@ -39,7 +40,7 @@ export const recursiveBacktracking: MazeGenerationAlgorithm = (
   rbGrid.forEach((row) =>
     row.forEach((node) => {
       if (!node.visited) {
-        if (node.x !== targetCoord.x && node.y !== targetCoord.y) {
+        if (node.x !== targetCoord.x || node.y !== targetCoord.y) {
           walls.push({
             x: node.x,
             y: node.y,
@@ -52,7 +53,9 @@ export const recursiveBacktracking: MazeGenerationAlgorithm = (
   return walls;
 };
 
-const findNextCoord = (grid: RBGrid, coord: Coord): Coord | false => {
+type FindNextMoveResult = { nextNodeToVisit: Coord; pathNode: Coord } | false;
+
+const findNextMove = (grid: RBGrid, coord: Coord): FindNextMoveResult => {
   const numRows = grid.length;
   const numCols = grid[0].length;
 
@@ -60,51 +63,74 @@ const findNextCoord = (grid: RBGrid, coord: Coord): Coord | false => {
   shuffle(directions);
   assert(directions.length === 4);
 
-  let nextCoord: Coord | false = false;
+  let res: FindNextMoveResult = false;
 
   for (const d of directions) {
-    let tempCoord: Coord | false = false;
+    let tempRes: FindNextMoveResult = false;
 
     switch (d) {
       case 1:
-        tempCoord = {
-          x: coord.x,
-          y: coord.y - 2,
+        tempRes = {
+          nextNodeToVisit: {
+            x: coord.x,
+            y: coord.y - 2,
+          },
+          pathNode: {
+            x: coord.x,
+            y: coord.y - 1,
+          },
         };
         break;
       case 2:
-        tempCoord = {
-          x: coord.x + 2,
-          y: coord.y,
+        tempRes = {
+          nextNodeToVisit: {
+            x: coord.x + 2,
+            y: coord.y,
+          },
+          pathNode: {
+            x: coord.x + 1,
+            y: coord.y,
+          },
         };
         break;
       case 3:
-        tempCoord = {
-          x: coord.x,
-          y: coord.y + 2,
+        tempRes = {
+          nextNodeToVisit: {
+            x: coord.x,
+            y: coord.y + 2,
+          },
+          pathNode: {
+            x: coord.x,
+            y: coord.y + 1,
+          },
         };
         break;
       case 4:
-        tempCoord = {
-          x: coord.x - 2,
-          y: coord.y,
+        tempRes = {
+          nextNodeToVisit: {
+            x: coord.x - 2,
+            y: coord.y,
+          },
+          pathNode: {
+            x: coord.x - 1,
+            y: coord.y,
+          },
         };
         break;
     }
 
-    tempCoord = tempCoord as Coord;
-
     if (
-      tempCoord.x >= 0 &&
-      tempCoord.x < numCols &&
-      tempCoord.y >= 0 &&
-      tempCoord.y < numRows &&
-      !grid[tempCoord.y][tempCoord.x].visited
+      tempRes &&
+      tempRes.nextNodeToVisit.x >= 0 &&
+      tempRes.nextNodeToVisit.x < numCols &&
+      tempRes.nextNodeToVisit.y >= 0 &&
+      tempRes.nextNodeToVisit.y < numRows &&
+      !grid[tempRes.nextNodeToVisit.y][tempRes.nextNodeToVisit.x].visited
     ) {
-      nextCoord = tempCoord;
+      res = tempRes;
       break;
     }
   }
 
-  return nextCoord;
+  return res;
 };
