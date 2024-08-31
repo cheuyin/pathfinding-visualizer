@@ -48,60 +48,48 @@ export const useVisualizer = () => {
     });
   };
 
-  const updateNode = (node: Node) => {
-    const nodeCopy = { ...node };
-    const gridCopy = grid.map((row) => row);
-    gridCopy[node.y][node.x] = nodeCopy;
-    setGrid(gridCopy);
+  const createShallowGridCopyWithUpdatedNode = (grid: GridType, node: Node) => {
+    const gridCopy = grid.map((row) => [...row]);
+    gridCopy[node.y][node.x] = node;
+    return gridCopy;
   };
 
   const animate = () => {
     setIsVisualizing(true);
 
-    const algoResult = algorithm(grid, SOURCE_COORD, TARGET_COORD);
+    const gridCopy: GridType = createGridCopyWithNoPath(grid);
 
-    const gridCopy: GridType = grid.map((row) =>
-      row.map((node) => {
-        return { ...node };
-      }),
-    );
-
-    algoResult.visitedNodes.forEach((visitedCoord) => {
-      const node = gridCopy[visitedCoord.y][visitedCoord.x];
-      if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
-      gridCopy[visitedCoord.y][visitedCoord.x].type = NodeType.VISITED;
-    });
+    const algoResult = algorithm(gridCopy, SOURCE_COORD, TARGET_COORD);
 
     for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
       if (i === algoResult.visitedNodes.length) {
         setTimeout(() => {
           if (algoResult.pathToTarget.length > 0) {
-            algoResult.pathToTarget.forEach((pathToTarget) => {
-              const node = gridCopy[pathToTarget.y][pathToTarget.x];
-              if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
-              node.type = NodeType.PATH;
-            });
             for (let j = 0; j < algoResult.pathToTarget.length; j++) {
               setTimeout(() => {
-                const coord = algoResult.pathToTarget[j];
-                const node = gridCopy[coord.y][coord.x];
-                updateNode(node);
-
                 if (j == algoResult.pathToTarget.length - 1) {
                   setIsVisualizing(false);
                 }
+
+                const coord = algoResult.pathToTarget[j];
+                const node = gridCopy[coord.y][coord.x];
+                if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
+                node.type = NodeType.PATH;
+                setGrid(createShallowGridCopyWithUpdatedNode(gridCopy, node));
               }, 10 * j);
             }
           } else {
             setIsVisualizing(false);
           }
-        }, 5 * i);
+        }, 1 * i);
       } else {
         setTimeout(() => {
           const coord = algoResult.visitedNodes[i];
           const node = gridCopy[coord.y][coord.x];
-          updateNode(node);
-        }, 5 * i);
+          if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
+          node.type = NodeType.VISITED;
+          setGrid(createShallowGridCopyWithUpdatedNode(gridCopy, node));
+        }, 1 * i);
       }
     }
   };
@@ -184,4 +172,21 @@ const createEmptyGrid = (
     grid.push(col);
   }
   return grid;
+};
+
+const createGridCopyWithNoPath = (grid: GridType) => {
+  return grid.map((row) =>
+    row.map((node) => {
+      if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
+        return {
+          ...node,
+          type: NodeType.BLANK,
+        };
+      } else {
+        return {
+          ...node,
+        };
+      }
+    }),
+  );
 };
