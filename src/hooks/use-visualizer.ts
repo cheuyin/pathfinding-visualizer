@@ -20,7 +20,9 @@ const TARGET_COORD: Coord = {
 };
 
 export const useVisualizer = () => {
-  const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
+  const [grid, setGrid] = useState<GridType>(
+    createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD),
+  );
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
 
@@ -107,13 +109,11 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
-    setIsVisualizing(false);
-    const newGrid = createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS);
+    const newGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD);
     setGrid(newGrid);
   };
 
   const resetVisualization = () => {
-    setIsVisualizing(false);
     const newGrid: GridType = grid.map((row) =>
       row.map((node) => {
         if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
@@ -129,10 +129,13 @@ export const useVisualizer = () => {
 
   const generateMaze = () => {
     setIsVisualizing(true);
-    const walls = recursiveBacktracking(grid, SOURCE_COORD, TARGET_COORD);
+
+    const blankGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD);
+
+    const walls = recursiveBacktracking(blankGrid, SOURCE_COORD, TARGET_COORD);
     for (let i = 0; i < walls.length; i++) {
       setTimeout(() => {
-        const node = grid[walls[i].y][walls[i].x];
+        const node = blankGrid[walls[i].y][walls[i].x];
         setWall(node);
 
         if (i == walls.length - 1) {
@@ -140,6 +143,8 @@ export const useVisualizer = () => {
         }
       }, 1 * i);
     }
+
+    setGrid(blankGrid);
   };
 
   return {
@@ -154,7 +159,12 @@ export const useVisualizer = () => {
   };
 };
 
-const createInitialGrid = (numRows: number, numCols: number): GridType => {
+const createEmptyGrid = (
+  numCols: number,
+  numRows: number,
+  sourceCoord: Coord,
+  targetCoord: Coord,
+): GridType => {
   const grid = [];
   for (let i = 0; i < numRows; i++) {
     const col = [];
@@ -165,9 +175,9 @@ const createInitialGrid = (numRows: number, numCols: number): GridType => {
         type: NodeType.BLANK,
       };
 
-      if (j == SOURCE_COORD.x && i == SOURCE_COORD.y) {
+      if (j == sourceCoord.x && i == sourceCoord.y) {
         node.type = NodeType.SOURCE;
-      } else if (j == TARGET_COORD.x && i == TARGET_COORD.y) {
+      } else if (j == targetCoord.x && i == targetCoord.y) {
         node.type = NodeType.TARGET;
       }
 
