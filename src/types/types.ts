@@ -21,3 +21,9 @@ export type Algorithm = (
   visitedNodes: Coord[];
   pathToTarget: Coord[];
 };
+
+export type MazeGenerationAlgorithm = (
+  grid: Grid,
+  startCoord: Coord,
+  targetCoord: Coord,
+) => Coord[];
