@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
@@ -6,8 +6,8 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 
-const NUM_GRID_COLS = 110;
-const NUM_GRID_ROWS = 40;
+const NUM_GRID_COLS = 60;
+const NUM_GRID_ROWS = 25;
 
 const SOURCE_COORD: Coord = {
   x: 10,
@@ -15,15 +15,14 @@ const SOURCE_COORD: Coord = {
 };
 
 const TARGET_COORD: Coord = {
-  x: 85,
-  y: 36,
+  x: 55,
+  y: 22,
 };
 
 export const useVisualizer = () => {
   const [grid, setGrid] = useState<GridType>(createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS));
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
-  const timoutIdsRef = useRef([] as number[]);
 
   const setWall = (node: Node) => {
     if (isVisualizing) return false;
@@ -73,30 +72,35 @@ export const useVisualizer = () => {
 
     for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
       if (i === algoResult.visitedNodes.length) {
-        const animation1 = setTimeout(() => {
-          algoResult.pathToTarget.forEach((pathToTarget) => {
-            const node = gridCopy[pathToTarget.y][pathToTarget.x];
-            if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
-            node.type = NodeType.PATH;
-          });
-          for (let j = 0; j < algoResult.pathToTarget.length; j++) {
-            const animation2 = setTimeout(() => {
-              const coord = algoResult.pathToTarget[j];
-              const node = gridCopy[coord.y][coord.x];
-              updateNode(node);
-            }, 10 * j);
-            timoutIdsRef.current.push(animation2);
-          }
-        }, 1 * i);
-        timoutIdsRef.current.push(animation1);
+        if (algoResult.pathToTarget.length) {
+          setTimeout(() => {
+            algoResult.pathToTarget.forEach((pathToTarget) => {
+              const node = gridCopy[pathToTarget.y][pathToTarget.x];
+              if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
+              node.type = NodeType.PATH;
+            });
+            for (let j = 0; j < algoResult.pathToTarget.length; j++) {
+              setTimeout(() => {
+                const coord = algoResult.pathToTarget[j];
+                const node = gridCopy[coord.y][coord.x];
+                updateNode(node);
+              }, 10 * j);
+
+              if (j == algoResult.pathToTarget.length - 1) {
+                setIsVisualizing(false);
+              }
+            }
+          }, 1 * i);
+        } else {
+          setIsVisualizing(false);
+        }
         return;
       }
-      const animation3 = setTimeout(() => {
+      setTimeout(() => {
         const coord = algoResult.visitedNodes[i];
         const node = gridCopy[coord.y][coord.x];
         updateNode(node);
       }, 1 * i);
-      timoutIdsRef.current.push(animation3);
     }
 
     setGrid(gridCopy);
@@ -104,21 +108,12 @@ export const useVisualizer = () => {
 
   const resetGrid = () => {
     setIsVisualizing(false);
-    timoutIdsRef.current.forEach((timeoutId) => {
-      clearTimeout(timeoutId);
-    });
-    timoutIdsRef.current = [];
     const newGrid = createInitialGrid(NUM_GRID_ROWS, NUM_GRID_COLS);
     setGrid(newGrid);
   };
 
   const resetVisualization = () => {
     setIsVisualizing(false);
-    timoutIdsRef.current.forEach((timeoutId) => {
-      clearTimeout(timeoutId);
-    });
-    timoutIdsRef.current = [];
-
     const newGrid: GridType = grid.map((row) =>
       row.map((node) => {
         if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
@@ -133,10 +128,17 @@ export const useVisualizer = () => {
   };
 
   const generateMaze = () => {
+    setIsVisualizing(true);
     const walls = recursiveBacktracking(grid, SOURCE_COORD, TARGET_COORD);
-    for (const c of walls) {
-      const node = grid[c.y][c.x];
-      setWall(node);
+    for (let i = 0; i < walls.length; i++) {
+      setTimeout(() => {
+        const node = grid[walls[i].y][walls[i].x];
+        setWall(node);
+
+        if (i == walls.length - 1) {
+          setIsVisualizing(false);
+        }
+      }, 1 * i);
     }
   };
 

@@ -50,14 +50,20 @@ export const Grid: React.FC = () => {
       <button onClick={animate} disabled={isVisualizing}>
         {'Visualize'}
       </button>
-      <button onClick={resetGrid}>Reset Grid</button>
-      <button onClick={resetVisualization}>Reset Visualization</button>
+      <button onClick={resetGrid} disabled={isVisualizing}>
+        Reset Grid
+      </button>
+      <button onClick={resetVisualization} disabled={isVisualizing}>
+        Reset Visualization
+      </button>
       <select onChange={handleAlgorithmSelection} disabled={isVisualizing}>
         <option value="Dijkstra's">Dijkstra's</option>
         <option value="A*">A*</option>
         <option value="DFS">DFS</option>
       </select>
-      <button onClick={generateMaze}>Generate Maze</button>
+      <button onClick={generateMaze} disabled={isVisualizing}>
+        Generate Maze
+      </button>
     </div>
   );
 };
