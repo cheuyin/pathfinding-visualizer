@@ -4,6 +4,7 @@ import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
+import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 
 const NUM_GRID_COLS = 100;
 const NUM_GRID_ROWS = 40;
@@ -23,7 +24,6 @@ export const useVisualizer = () => {
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
   const timoutIdsRef = useRef([] as number[]);
-
 
   const setWall = (node: Node) => {
     if (isVisualizing) return false;
@@ -132,7 +132,24 @@ export const useVisualizer = () => {
     setGrid(newGrid);
   };
 
-  return { grid, setWall, animate, resetGrid, resetVisualization, setAlgorithm, isVisualizing };
+  const generateMaze = () => {
+    const walls = recursiveBacktracking(grid, SOURCE_COORD, TARGET_COORD);
+    for (const c of walls) {
+      const node = grid[c.y][c.x];
+      setWall(node);
+    }
+  };
+
+  return {
+    grid,
+    setWall,
+    animate,
+    resetGrid,
+    resetVisualization,
+    setAlgorithm,
+    isVisualizing,
+    generateMaze,
+  };
 };
 
 const createInitialGrid = (numRows: number, numCols: number): GridType => {

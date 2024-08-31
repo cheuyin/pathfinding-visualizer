@@ -6,8 +6,16 @@ import { aStar } from '../utils/pathfinding-algorithms/a-star';
 import { dfs } from '../utils/pathfinding-algorithms/dfs';
 
 export const Grid: React.FC = () => {
-  const { grid, setWall, isVisualizing, animate, resetGrid, resetVisualization, setAlgorithm } =
-    useVisualizer();
+  const {
+    grid,
+    setWall,
+    isVisualizing,
+    animate,
+    resetGrid,
+    resetVisualization,
+    setAlgorithm,
+    generateMaze,
+  } = useVisualizer();
 
   const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     if (event.target.value === "Dijkstra's") {
@@ -49,6 +57,7 @@ export const Grid: React.FC = () => {
         <option value="A*">A*</option>
         <option value="DFS">DFS</option>
       </select>
+      <button onClick={generateMaze}>Generate Maze</button>
     </div>
   );
 };
