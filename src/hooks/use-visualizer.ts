@@ -74,8 +74,8 @@ export const useVisualizer = () => {
 
     for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
       if (i === algoResult.visitedNodes.length) {
-        if (algoResult.pathToTarget.length) {
-          setTimeout(() => {
+        setTimeout(() => {
+          if (algoResult.pathToTarget.length > 0) {
             algoResult.pathToTarget.forEach((pathToTarget) => {
               const node = gridCopy[pathToTarget.y][pathToTarget.x];
               if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
@@ -86,26 +86,24 @@ export const useVisualizer = () => {
                 const coord = algoResult.pathToTarget[j];
                 const node = gridCopy[coord.y][coord.x];
                 updateNode(node);
+
+                if (j == algoResult.pathToTarget.length - 1) {
+                  setIsVisualizing(false);
+                }
               }, 10 * j);
-
-              if (j == algoResult.pathToTarget.length - 1) {
-                setIsVisualizing(false);
-              }
             }
-          }, 1 * i);
-        } else {
-          setIsVisualizing(false);
-        }
-        return;
+          } else {
+            setIsVisualizing(false);
+          }
+        }, 5 * i);
+      } else {
+        setTimeout(() => {
+          const coord = algoResult.visitedNodes[i];
+          const node = gridCopy[coord.y][coord.x];
+          updateNode(node);
+        }, 5 * i);
       }
-      setTimeout(() => {
-        const coord = algoResult.visitedNodes[i];
-        const node = gridCopy[coord.y][coord.x];
-        updateNode(node);
-      }, 1 * i);
     }
-
-    setGrid(gridCopy);
   };
 
   const resetGrid = () => {
