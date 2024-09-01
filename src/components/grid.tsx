@@ -74,18 +74,20 @@ export const Grid: React.FC = () => {
                     setIsMakingWalls(true);
                     setWall(node);
                   }}
-                  onSetSourceNode={(node) =>
+                  onSetSourceNode={(node) => {
                     setSourceCoord({
                       x: node.x,
                       y: node.y,
-                    })
-                  }
-                  onSetTargetNode={(node) =>
+                    });
+                    resetVisualization();
+                  }}
+                  onSetTargetNode={(node) => {
                     setTargetCoord({
                       x: node.x,
                       y: node.y,
-                    })
-                  }
+                    });
+                    resetVisualization();
+                  }}
                 />
               ))}
             </tr>
