@@ -26,6 +26,9 @@ export const useVisualizer = () => {
 
   useEffect(() => {
     setGrid((prevGrid) => {
+      if (prevGrid[targetCoord.y][targetCoord.x].type === NodeType.SOURCE) {
+        return prevGrid;
+      }
       const gridCopy = prevGrid.map((row) =>
         row.map((node) => {
           const nodeCopy = { ...node };
@@ -45,6 +48,9 @@ export const useVisualizer = () => {
 
   useEffect(() => {
     setGrid((prevGrid) => {
+      if (prevGrid[sourceCoord.y][sourceCoord.x].type === NodeType.TARGET) {
+        return prevGrid;
+      }
       const gridCopy = prevGrid.map((row) =>
         row.map((node) => {
           const nodeCopy = { ...node };

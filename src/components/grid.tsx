@@ -88,6 +88,7 @@ export const Grid: React.FC = () => {
                     });
                     resetVisualization();
                   }}
+                  isVisualizing={isVisualizing}
                 />
               ))}
             </tr>

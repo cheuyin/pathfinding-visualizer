@@ -8,6 +8,7 @@ interface GridCellProps {
   onMouseOver: (selectedNode: Node) => void;
   onSetTargetNode: (selectedNode: Node) => void;
   onSetSourceNode: (selectedNode: Node) => void;
+  isVisualizing: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = ({
@@ -16,6 +17,7 @@ export const GridCell: React.FC<GridCellProps> = ({
   onMouseOver,
   onSetTargetNode,
   onSetSourceNode,
+  isVisualizing,
 }) => {
   const handleOnMouseDown = () => {
     if (node.type === NodeType.BLANK) {
@@ -52,7 +54,7 @@ export const GridCell: React.FC<GridCellProps> = ({
       $bgColor={getBackgroundColor(node.type)}
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
-      draggable={node.type === NodeType.SOURCE || node.type === NodeType.TARGET}
+      draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
       onDragStart={handleOnDragStart}
       onDragOver={handleOnDragOver}
       onDrop={handleOnDrop}
