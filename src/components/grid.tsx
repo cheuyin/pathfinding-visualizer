@@ -1,44 +1,27 @@
 import styled from 'styled-components';
 import { GridCell } from './grid-cell';
-import { useVisualizer } from '../hooks/use-visualizer';
-import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
-import { aStar } from '../utils/pathfinding-algorithms/a-star';
-import { dfs } from '../utils/pathfinding-algorithms/dfs';
 import { useEffect, useState } from 'react';
-import { Button, Center, Select } from '@mantine/core';
+import { Center } from '@mantine/core';
+import { Coord, Grid as GridType, Node } from '../types/types';
 
-export const Grid: React.FC = () => {
-  const {
-    grid,
-    setWall,
-    isVisualizing,
-    animate,
-    resetGrid,
-    resetVisualization,
-    setAlgorithm,
-    generateMaze,
-    setSourceCoord,
-    setTargetCoord,
-  } = useVisualizer();
+interface GridProps {
+  grid: GridType;
+  isVisualizing: boolean;
+  onSetWall: (node: Node) => void;
+  onSetSourceCoord: (coord: Coord) => void;
+  onSetTargetCoord: (coord: Coord) => void;
+  onResetVisualization: () => void;
+}
 
+export const Grid: React.FC<GridProps> = ({
+  grid,
+  isVisualizing,
+  onSetWall,
+  onSetSourceCoord,
+  onSetTargetCoord,
+  onResetVisualization,
+}) => {
   const [isMakingWalls, setIsMakingWalls] = useState(false);
-
-  const onAlgorithmSelection = (algorithm: string) => {
-    if (algorithm === "Dijkstra's") {
-      setAlgorithm(() => dijkstra);
-      return;
-    }
-
-    if (algorithm === 'A*') {
-      setAlgorithm(() => aStar);
-      return;
-    }
-
-    if (algorithm === 'DFS') {
-      setAlgorithm(() => dfs);
-      return;
-    }
-  };
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -69,26 +52,26 @@ export const Grid: React.FC = () => {
                     node={node}
                     onMouseOver={(node) => {
                       if (isMakingWalls) {
-                        setWall(node);
+                        onSetWall(node);
                       }
                     }}
                     onBlankNodeClicked={(node) => {
                       setIsMakingWalls(true);
-                      setWall(node);
+                      onSetWall(node);
                     }}
                     onSetSourceNode={(node) => {
-                      setSourceCoord({
+                      onSetSourceCoord({
                         x: node.x,
                         y: node.y,
                       });
-                      resetVisualization();
+                      onResetVisualization();
                     }}
                     onSetTargetNode={(node) => {
-                      setTargetCoord({
+                      onSetTargetCoord({
                         x: node.x,
                         y: node.y,
                       });
-                      resetVisualization();
+                      onResetVisualization();
                     }}
                     isVisualizing={isVisualizing}
                   />
@@ -98,24 +81,6 @@ export const Grid: React.FC = () => {
           </tbody>
         </Table>
       </Center>
-      <Button variant="filled" onClick={animate} disabled={isVisualizing}>
-        {'Visualize'}
-      </Button>
-      <Button onClick={resetGrid} disabled={isVisualizing}>
-        Reset Grid
-      </Button>
-      <Button onClick={resetVisualization} disabled={isVisualizing}>
-        Reset Visualization
-      </Button>
-      <Select
-        onChange={(value) => onAlgorithmSelection(value!)}
-        disabled={isVisualizing}
-        data={["Dijkstra's", 'A*', 'DFS']}
-        defaultValue="Dijkstra's"
-      />
-      <Button onClick={generateMaze} disabled={isVisualizing}>
-        Generate Maze
-      </Button>
     </>
   );
 };
