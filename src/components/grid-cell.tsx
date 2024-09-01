@@ -68,8 +68,8 @@ const Cell = styled.td<{
   $nodeType: NodeType;
 }>`
   border: 1px solid black;
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   background-color: ${(props) => props.$bgColor};
   ${(props) =>
     props.$nodeType === NodeType.VISITED

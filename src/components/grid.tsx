@@ -5,6 +5,7 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { aStar } from '../utils/pathfinding-algorithms/a-star';
 import { dfs } from '../utils/pathfinding-algorithms/dfs';
 import { useEffect, useState } from 'react';
+import { Button, Center, Select } from '@mantine/core';
 
 export const Grid: React.FC = () => {
   const {
@@ -22,18 +23,18 @@ export const Grid: React.FC = () => {
 
   const [isMakingWalls, setIsMakingWalls] = useState(false);
 
-  const handleAlgorithmSelection: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
-    if (event.target.value === "Dijkstra's") {
+  const onAlgorithmSelection = (algorithm: string) => {
+    if (algorithm === "Dijkstra's") {
       setAlgorithm(() => dijkstra);
       return;
     }
 
-    if (event.target.value === 'A*') {
+    if (algorithm === 'A*') {
       setAlgorithm(() => aStar);
       return;
     }
 
-    if (event.target.value === 'DFS') {
+    if (algorithm === 'DFS') {
       setAlgorithm(() => dfs);
       return;
     }
@@ -56,63 +57,66 @@ export const Grid: React.FC = () => {
   }, [isMakingWalls]);
 
   return (
-    <div>
-      <Table>
-        <tbody>
-          {grid.map((row, rowIdx) => (
-            <tr key={rowIdx}>
-              {row.map((node, colIdx) => (
-                <GridCell
-                  key={`${colIdx} ${rowIdx}`}
-                  node={node}
-                  onMouseOver={(node) => {
-                    if (isMakingWalls) {
+    <>
+      <Center>
+        <Table>
+          <tbody>
+            {grid.map((row, rowIdx) => (
+              <tr key={rowIdx}>
+                {row.map((node, colIdx) => (
+                  <GridCell
+                    key={`${colIdx} ${rowIdx}`}
+                    node={node}
+                    onMouseOver={(node) => {
+                      if (isMakingWalls) {
+                        setWall(node);
+                      }
+                    }}
+                    onBlankNodeClicked={(node) => {
+                      setIsMakingWalls(true);
                       setWall(node);
-                    }
-                  }}
-                  onBlankNodeClicked={(node) => {
-                    setIsMakingWalls(true);
-                    setWall(node);
-                  }}
-                  onSetSourceNode={(node) => {
-                    setSourceCoord({
-                      x: node.x,
-                      y: node.y,
-                    });
-                    resetVisualization();
-                  }}
-                  onSetTargetNode={(node) => {
-                    setTargetCoord({
-                      x: node.x,
-                      y: node.y,
-                    });
-                    resetVisualization();
-                  }}
-                  isVisualizing={isVisualizing}
-                />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <button onClick={animate} disabled={isVisualizing}>
+                    }}
+                    onSetSourceNode={(node) => {
+                      setSourceCoord({
+                        x: node.x,
+                        y: node.y,
+                      });
+                      resetVisualization();
+                    }}
+                    onSetTargetNode={(node) => {
+                      setTargetCoord({
+                        x: node.x,
+                        y: node.y,
+                      });
+                      resetVisualization();
+                    }}
+                    isVisualizing={isVisualizing}
+                  />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Center>
+      <Button variant="filled" onClick={animate} disabled={isVisualizing}>
         {'Visualize'}
-      </button>
-      <button onClick={resetGrid} disabled={isVisualizing}>
+      </Button>
+      <Button onClick={resetGrid} disabled={isVisualizing}>
         Reset Grid
-      </button>
-      <button onClick={resetVisualization} disabled={isVisualizing}>
+      </Button>
+      <Button onClick={resetVisualization} disabled={isVisualizing}>
         Reset Visualization
-      </button>
-      <select onChange={handleAlgorithmSelection} disabled={isVisualizing}>
-        <option value="Dijkstra's">Dijkstra's</option>
-        <option value="A*">A*</option>
-        <option value="DFS">DFS</option>
-      </select>
-      <button onClick={generateMaze} disabled={isVisualizing}>
+      </Button>
+      <Select
+        onChange={(value) => onAlgorithmSelection(value!)}
+        disabled={isVisualizing}
+        data={["Dijkstra's", 'A*', 'DFS']}
+        defaultValue="Dijkstra's"
+      />
+      <Button onClick={generateMaze} disabled={isVisualizing}>
         Generate Maze
-      </button>
-    </div>
+      </Button>
+    </>
   );
 };
 
