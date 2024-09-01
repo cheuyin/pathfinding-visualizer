@@ -42,6 +42,43 @@ export const App = () => {
 
   return (
     <MantineProvider theme={theme}>
+      <Flex align={'center'} gap={40} bg={'blue'} py={16} px={24}>
+        <Text size="xl" fw={800} c="white">
+          Pathfinding Algorithm
+        </Text>
+        <Group>
+          <Select
+            onChange={(value) => onAlgorithmSelection(value!)}
+            disabled={isVisualizing}
+            data={["Dijkstra's", 'A*', 'DFS']}
+            defaultValue="Dijkstra's"
+            allowDeselect={false}
+          />
+          <Button
+            variant="filled"
+            color="white"
+            c="dark"
+            onClick={animate}
+            disabled={isVisualizing}
+          >
+            {'Visualize'}
+          </Button>
+          <Button variant="outline" onClick={generateMaze} disabled={isVisualizing} color="white">
+            Generate Maze
+          </Button>
+          <Button variant="outline" color="white" onClick={resetGrid} disabled={isVisualizing}>
+            Reset Grid
+          </Button>
+          <Button
+            variant="outline"
+            color="white"
+            onClick={resetVisualization}
+            disabled={isVisualizing}
+          >
+            Reset Visualization
+          </Button>
+        </Group>
+      </Flex>
       <Grid
         grid={grid}
         isVisualizing={isVisualizing}
@@ -50,40 +87,6 @@ export const App = () => {
         onSetTargetCoord={setTargetCoord}
         onSetWall={setWall}
       />
-      <Group>
-        <Flex align={'center'} direction={'row'} gap={10}>
-          <Text fw={500}>Algorithm</Text>
-          <Select
-            onChange={(value) => onAlgorithmSelection(value!)}
-            disabled={isVisualizing}
-            data={["Dijkstra's", 'A*', 'DFS']}
-            defaultValue="Dijkstra's"
-            allowDeselect={false}
-          />
-        </Flex>
-        <Button
-          variant="gradient"
-          gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
-          onClick={animate}
-          disabled={isVisualizing}
-        >
-          {'Visualize'}
-        </Button>
-        <Button variant="outline" onClick={generateMaze} disabled={isVisualizing}>
-          Generate Maze
-        </Button>
-        <Button variant="outline" color="dark" onClick={resetGrid} disabled={isVisualizing}>
-          Reset Grid
-        </Button>
-        <Button
-          variant="outline"
-          color="dark"
-          onClick={resetVisualization}
-          disabled={isVisualizing}
-        >
-          Reset Visualization
-        </Button>
-      </Group>
     </MantineProvider>
   );
 };
