@@ -4,24 +4,31 @@ import { NodeType } from '../types/enums';
 
 interface GridCellProps {
   node: Node;
-  isMakingWalls: boolean;
-  onMakeWall?: (selectedNode: Node) => void;
+  onBlankNodeClicked: (selectedNode: Node) => void;
+  onMouseOver: (selectedNode: Node) => void;
 }
 
-export const GridCell: React.FC<GridCellProps> = ({ node, isMakingWalls, onMakeWall }) => {
+export const GridCell: React.FC<GridCellProps> = ({ node, onBlankNodeClicked, onMouseOver }) => {
+  const handleOnMouseDown = () => {
+    if (node.type === NodeType.BLANK) {
+      onBlankNodeClicked(node);
+    }
+  };
+
   return (
     <Cell
       $bgColor={getBackgroundColor(node.type)}
-      onMouseOver={() => isMakingWalls && onMakeWall && onMakeWall(node)}
-      onMouseDown={() => onMakeWall && onMakeWall(node)}
+      onMouseOver={() => onMouseOver(node)}
+      onMouseDown={handleOnMouseDown}
+      draggable={node.type === NodeType.SOURCE || node.type === NodeType.TARGET}
     />
   );
 };
 
 const Cell = styled.td<{ $bgColor: string }>`
   border: 1px solid black;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   background-color: ${(props) => props.$bgColor};
 `;
 

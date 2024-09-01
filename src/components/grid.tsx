@@ -56,15 +56,22 @@ export const Grid: React.FC = () => {
   return (
     <div>
       <Table>
-        <tbody onMouseDown={() => setIsMakingWalls(true)}>
+        <tbody>
           {grid.map((row, rowIdx) => (
             <tr key={rowIdx}>
               {row.map((node, colIdx) => (
                 <GridCell
                   key={`${colIdx} ${rowIdx}`}
                   node={node}
-                  isMakingWalls={isMakingWalls}
-                  onMakeWall={setWall}
+                  onMouseOver={(node) => {
+                    if (isMakingWalls) {
+                      setWall(node);
+                    }
+                  }}
+                  onBlankNodeClicked={(node) => {
+                    setIsMakingWalls(true);
+                    setWall(node);
+                  }}
                 />
               ))}
             </tr>
