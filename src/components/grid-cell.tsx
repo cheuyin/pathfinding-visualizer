@@ -52,8 +52,7 @@ export const GridCell: React.FC<GridCellProps> = ({
   return (
     <Cell
       $bgColor={getBackgroundColor(node.type)}
-      $isVisited={node.type === NodeType.VISITED}
-      $isPath={node.type === NodeType.PATH}
+      $nodeType={node.type}
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
       draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
@@ -64,22 +63,31 @@ export const GridCell: React.FC<GridCellProps> = ({
   );
 };
 
-const Cell = styled.td<{ $bgColor: string; $isVisited: boolean; $isPath: boolean }>`
+const Cell = styled.td<{
+  $bgColor: string;
+  $nodeType: NodeType;
+}>`
   border: 1px solid black;
   width: 20px;
   height: 20px;
   background-color: ${(props) => props.$bgColor};
   ${(props) =>
-    props.$isVisited
+    props.$nodeType === NodeType.VISITED
       ? css`
           animation: ${visitedNodeAnimation} 2s;
           animation-timing-function: ease-out;
           animation-fill-mode: forwards;
         `
-      : props.$isPath
+      : props.$nodeType === NodeType.PATH
       ? css`
-          animation: ${pathNodeAnimation} 2s;
+          animation: ${pathNodeAnimation} 1s;
           animation-timing-function: ease-out;
+          animation-fill-mode: forwards;
+        `
+      : props.$nodeType === NodeType.WALL
+      ? css`
+          animation: ${wallNodeAnimation} 0.25s;
+          animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         `
       : null}
@@ -92,18 +100,6 @@ const getBackgroundColor = (type: NodeType): string => {
 
   if (type === NodeType.TARGET) {
     return 'red';
-  }
-
-  if (type === NodeType.PATH) {
-    return 'yellow';
-  }
-
-  if (type === NodeType.WALL) {
-    return 'gray';
-  }
-
-  if (type === NodeType.VISITED) {
-    return 'lightblue';
   }
 
   return '';
@@ -134,16 +130,31 @@ const visitedNodeAnimation = keyframes`
 const pathNodeAnimation = keyframes`
   0% {
     transform: scale(.3);
-    /*background-color: darkslategrey;*/
   }
 
   50% {
     transform: scale(1.2);
-    /*background-color: darkslategrey;*/
   }
 
   100% {
     transform: scale(1.0);
-    /*background-color: darkslategrey;*/
+    background-color: yellow;
+  }
+`;
+
+const wallNodeAnimation = keyframes`
+  0% {
+    transform: scale(.3);
+    background-color: rgb(12, 53, 71);
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: rgb(12, 53, 71);
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: rgb(12, 53, 71);
   }
 `;
