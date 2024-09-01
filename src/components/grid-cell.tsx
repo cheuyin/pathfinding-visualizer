@@ -53,6 +53,7 @@ export const GridCell: React.FC<GridCellProps> = ({
     <Cell
       $bgColor={getBackgroundColor(node.type)}
       $isVisited={node.type === NodeType.VISITED}
+      $isPath={node.type === NodeType.PATH}
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
       draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
@@ -63,17 +64,25 @@ export const GridCell: React.FC<GridCellProps> = ({
   );
 };
 
-const Cell = styled.td<{ $bgColor: string; $isVisited: boolean }>`
+const Cell = styled.td<{ $bgColor: string; $isVisited: boolean; $isPath: boolean }>`
   border: 1px solid black;
   width: 20px;
   height: 20px;
   background-color: ${(props) => props.$bgColor};
   ${(props) =>
-    props.$isVisited &&
-    css`
-      animation: ${gradientAnimation} 2s;
-      animation-timing-function: ease-out;
-    `}
+    props.$isVisited
+      ? css`
+          animation: ${visitedNodeAnimation} 2s;
+          animation-timing-function: ease-out;
+          animation-fill-mode: forwards;
+        `
+      : props.$isPath
+      ? css`
+          animation: ${pathNodeAnimation} 2s;
+          animation-timing-function: ease-out;
+          animation-fill-mode: forwards;
+        `
+      : null}
 `;
 
 const getBackgroundColor = (type: NodeType): string => {
@@ -100,7 +109,7 @@ const getBackgroundColor = (type: NodeType): string => {
   return '';
 };
 
-const gradientAnimation = keyframes`
+const visitedNodeAnimation = keyframes`
   0% {
     transform: scale(.3);
     background-color: rgba(0, 0, 66, 0.75);
@@ -119,5 +128,22 @@ const gradientAnimation = keyframes`
   100% {
     transform: scale(1.0);
     background-color: rgba(0, 190, 218, 0.75);
+  }
+`;
+
+const pathNodeAnimation = keyframes`
+  0% {
+    transform: scale(.3);
+    /*background-color: darkslategrey;*/
+  }
+
+  50% {
+    transform: scale(1.2);
+    /*background-color: darkslategrey;*/
+  }
+
+  100% {
+    transform: scale(1.0);
+    /*background-color: darkslategrey;*/
   }
 `;

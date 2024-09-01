@@ -118,7 +118,7 @@ export const useVisualizer = () => {
                 if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
                 node.type = NodeType.PATH;
                 setGrid(createShallowGridCopyWithUpdatedNode(gridCopy, node));
-              }, 10 * j);
+              }, 20 * j);
             }
           } else {
             setIsVisualizing(false);
