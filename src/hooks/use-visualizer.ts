@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
@@ -9,22 +9,58 @@ import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recur
 const NUM_GRID_COLS = 60;
 const NUM_GRID_ROWS = 25;
 
-const SOURCE_COORD: Coord = {
-  x: 10,
-  y: 10,
-};
-
-const TARGET_COORD: Coord = {
-  x: 55,
-  y: 22,
-};
-
 export const useVisualizer = () => {
+  const [sourceCoord, setSourceCoord] = useState({
+    x: 10,
+    y: 10,
+  });
+  const [targetCoord, setTargetCoord] = useState({
+    x: 50,
+    y: 10,
+  });
   const [grid, setGrid] = useState<GridType>(
-    createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD),
+    createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord),
   );
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
+
+  useEffect(() => {
+    setGrid((prevGrid) => {
+      const gridCopy = prevGrid.map((row) =>
+        row.map((node) => {
+          const nodeCopy = { ...node };
+          if (node.type === NodeType.TARGET) {
+            node.type = NodeType.BLANK;
+          }
+          if (node.x === targetCoord.x && node.y === targetCoord.y) {
+            node.type = NodeType.TARGET;
+          }
+          return nodeCopy;
+        }),
+      );
+
+      return gridCopy;
+    });
+  }, [targetCoord]);
+
+  useEffect(() => {
+    setGrid((prevGrid) => {
+      const gridCopy = prevGrid.map((row) =>
+        row.map((node) => {
+          const nodeCopy = { ...node };
+          if (node.type === NodeType.SOURCE) {
+            node.type = NodeType.BLANK;
+          }
+          if (node.x === sourceCoord.x && node.y === sourceCoord.y) {
+            node.type = NodeType.SOURCE;
+          }
+          return nodeCopy;
+        }),
+      );
+
+      return gridCopy;
+    });
+  }, [sourceCoord]);
 
   const setWall = (node: Node) => {
     if (isVisualizing) return false;
@@ -59,7 +95,7 @@ export const useVisualizer = () => {
 
     const gridCopy: GridType = createGridCopyWithNoPath(grid);
 
-    const algoResult = algorithm(gridCopy, SOURCE_COORD, TARGET_COORD);
+    const algoResult = algorithm(gridCopy, sourceCoord, targetCoord);
 
     for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
       if (i === algoResult.visitedNodes.length) {
@@ -95,7 +131,7 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
-    setGrid(createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD));
+    setGrid(createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord));
   };
 
   const resetVisualization = () => {
@@ -105,9 +141,9 @@ export const useVisualizer = () => {
   const generateMaze = () => {
     setIsVisualizing(true);
 
-    const blankGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, SOURCE_COORD, TARGET_COORD);
+    const blankGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord);
 
-    const walls = recursiveBacktracking(blankGrid, SOURCE_COORD, TARGET_COORD);
+    const walls = recursiveBacktracking(blankGrid, sourceCoord, targetCoord);
     for (let i = 0; i < walls.length; i++) {
       setTimeout(() => {
         const node = blankGrid[walls[i].y][walls[i].x];
