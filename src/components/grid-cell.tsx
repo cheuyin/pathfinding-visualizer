@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { Node } from '../types/types';
 import { NodeType } from '../types/enums';
 
@@ -52,6 +52,7 @@ export const GridCell: React.FC<GridCellProps> = ({
   return (
     <Cell
       $bgColor={getBackgroundColor(node.type)}
+      $isVisited={node.type === NodeType.VISITED}
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
       draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
@@ -62,11 +63,17 @@ export const GridCell: React.FC<GridCellProps> = ({
   );
 };
 
-const Cell = styled.td<{ $bgColor: string }>`
+const Cell = styled.td<{ $bgColor: string; $isVisited: boolean }>`
   border: 1px solid black;
   width: 20px;
   height: 20px;
   background-color: ${(props) => props.$bgColor};
+  ${(props) =>
+    props.$isVisited &&
+    css`
+      animation: ${gradientAnimation} 2s;
+      animation-timing-function: ease-out;
+    `}
 `;
 
 const getBackgroundColor = (type: NodeType): string => {
@@ -92,3 +99,25 @@ const getBackgroundColor = (type: NodeType): string => {
 
   return '';
 };
+
+const gradientAnimation = keyframes`
+  0% {
+    transform: scale(.3);
+    background-color: rgba(0, 0, 66, 0.75);
+    border-radius: 100%;
+  }
+
+  50% {
+    background-color: rgba(17, 104, 217, 0.75);
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: rgba(0, 217, 159, 0.75);
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: rgba(0, 190, 218, 0.75);
+  }
+`;
