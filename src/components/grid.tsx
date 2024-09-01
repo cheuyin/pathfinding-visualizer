@@ -16,6 +16,8 @@ export const Grid: React.FC = () => {
     resetVisualization,
     setAlgorithm,
     generateMaze,
+    setSourceCoord,
+    setTargetCoord,
   } = useVisualizer();
 
   const [isMakingWalls, setIsMakingWalls] = useState(false);
@@ -72,6 +74,18 @@ export const Grid: React.FC = () => {
                     setIsMakingWalls(true);
                     setWall(node);
                   }}
+                  onSetSourceNode={(node) =>
+                    setSourceCoord({
+                      x: node.x,
+                      y: node.y,
+                    })
+                  }
+                  onSetTargetNode={(node) =>
+                    setTargetCoord({
+                      x: node.x,
+                      y: node.y,
+                    })
+                  }
                 />
               ))}
             </tr>

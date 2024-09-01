@@ -6,12 +6,44 @@ interface GridCellProps {
   node: Node;
   onBlankNodeClicked: (selectedNode: Node) => void;
   onMouseOver: (selectedNode: Node) => void;
+  onSetTargetNode: (selectedNode: Node) => void;
+  onSetSourceNode: (selectedNode: Node) => void;
 }
 
-export const GridCell: React.FC<GridCellProps> = ({ node, onBlankNodeClicked, onMouseOver }) => {
+export const GridCell: React.FC<GridCellProps> = ({
+  node,
+  onBlankNodeClicked,
+  onMouseOver,
+  onSetTargetNode,
+  onSetSourceNode,
+}) => {
   const handleOnMouseDown = () => {
     if (node.type === NodeType.BLANK) {
       onBlankNodeClicked(node);
+    }
+  };
+
+  const handleOnDragStart: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.dataTransfer.setData(
+      'text',
+      node.type === NodeType.SOURCE ? 'SOURCE' : node.type === NodeType.TARGET ? 'TARGET' : '',
+    );
+  };
+
+  /**
+   * Make cells droppable by preventing the event default (by default, elements can't be dropped into.)
+   */
+  const handleOnDragOver: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.preventDefault();
+  };
+
+  const handleOnDrop: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text');
+    if (data === 'SOURCE') {
+      onSetSourceNode(node);
+    } else if (data === 'TARGET') {
+      onSetTargetNode(node);
     }
   };
 
@@ -21,6 +53,9 @@ export const GridCell: React.FC<GridCellProps> = ({ node, onBlankNodeClicked, on
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
       draggable={node.type === NodeType.SOURCE || node.type === NodeType.TARGET}
+      onDragStart={handleOnDragStart}
+      onDragOver={handleOnDragOver}
+      onDrop={handleOnDrop}
     />
   );
 };
