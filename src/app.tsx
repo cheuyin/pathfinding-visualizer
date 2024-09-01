@@ -1,7 +1,7 @@
 import '@mantine/core/styles.css';
 import { Grid } from './components/grid';
 import './app.css';
-import { Button, createTheme, Group, MantineProvider, Select } from '@mantine/core';
+import { Button, createTheme, Flex, Group, MantineProvider, Select, Text } from '@mantine/core';
 import { dijkstra } from './utils/pathfinding-algorithms/dijkstra';
 import { aStar } from './utils/pathfinding-algorithms/a-star';
 import { dfs } from './utils/pathfinding-algorithms/dfs';
@@ -51,23 +51,37 @@ export const App = () => {
         onSetWall={setWall}
       />
       <Group>
-        <Button variant="filled" onClick={animate} disabled={isVisualizing}>
+        <Flex align={'center'} direction={'row'} gap={10}>
+          <Text fw={500}>Algorithm</Text>
+          <Select
+            onChange={(value) => onAlgorithmSelection(value!)}
+            disabled={isVisualizing}
+            data={["Dijkstra's", 'A*', 'DFS']}
+            defaultValue="Dijkstra's"
+            allowDeselect={false}
+          />
+        </Flex>
+        <Button
+          variant="gradient"
+          gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+          onClick={animate}
+          disabled={isVisualizing}
+        >
           {'Visualize'}
         </Button>
-        <Button variant="outline" onClick={resetGrid} disabled={isVisualizing}>
-          Reset Grid
-        </Button>
-        <Button variant="outline" onClick={resetVisualization} disabled={isVisualizing}>
-          Reset Visualization
-        </Button>
-        <Select
-          onChange={(value) => onAlgorithmSelection(value!)}
-          disabled={isVisualizing}
-          data={["Dijkstra's", 'A*', 'DFS']}
-          defaultValue="Dijkstra's"
-        />
         <Button variant="outline" onClick={generateMaze} disabled={isVisualizing}>
           Generate Maze
+        </Button>
+        <Button variant="outline" color="dark" onClick={resetGrid} disabled={isVisualizing}>
+          Reset Grid
+        </Button>
+        <Button
+          variant="outline"
+          color="dark"
+          onClick={resetVisualization}
+          disabled={isVisualizing}
+        >
+          Reset Visualization
         </Button>
       </Group>
     </MantineProvider>
