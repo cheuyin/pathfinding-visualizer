@@ -1,6 +1,9 @@
 import styled, { css, keyframes } from 'styled-components';
 import { Node } from '../types/types';
 import { NodeType } from '../types/enums';
+import { IconMoodHappy } from '@tabler/icons-react';
+import { IconHome } from '@tabler/icons-react';
+import { Flex } from '@mantine/core';
 
 interface GridCellProps {
   node: Node;
@@ -51,7 +54,6 @@ export const GridCell: React.FC<GridCellProps> = ({
 
   return (
     <Cell
-      $bgColor={getBackgroundColor(node.type)}
       $nodeType={node.type}
       onMouseOver={() => onMouseOver(node)}
       onMouseDown={handleOnMouseDown}
@@ -59,18 +61,21 @@ export const GridCell: React.FC<GridCellProps> = ({
       onDragStart={handleOnDragStart}
       onDragOver={handleOnDragOver}
       onDrop={handleOnDrop}
-    />
+    >
+      <Flex w="100%" h="100%" align={'center'} justify={'center'}>
+        {node.type === NodeType.SOURCE && <IconMoodHappy size={20} />}
+        {node.type === NodeType.TARGET && <IconHome size={20} />}
+      </Flex>
+    </Cell>
   );
 };
 
 const Cell = styled.td<{
-  $bgColor: string;
   $nodeType: NodeType;
 }>`
   border: 1px solid #9ae2ff;
   width: 25px;
   height: 25px;
-  background-color: ${(props) => props.$bgColor};
   cursor: ${(props) =>
     (props.$nodeType === NodeType.SOURCE || props.$nodeType === NodeType.TARGET) && 'pointer'};
   ${(props) =>
@@ -94,18 +99,6 @@ const Cell = styled.td<{
         `
       : null};
 `;
-
-const getBackgroundColor = (type: NodeType): string => {
-  if (type === NodeType.SOURCE) {
-    return 'green';
-  }
-
-  if (type === NodeType.TARGET) {
-    return 'red';
-  }
-
-  return '';
-};
 
 const visitedNodeAnimation = keyframes`
   0% {
