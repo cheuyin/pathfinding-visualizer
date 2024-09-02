@@ -54,14 +54,8 @@ export const App = () => {
             defaultValue="Dijkstra's"
             allowDeselect={false}
           />
-          <Button
-            variant="filled"
-            color="white"
-            c="dark"
-            onClick={animate}
-            disabled={isVisualizing}
-          >
-            {'Visualize'}
+          <Button variant="outline" color="white" onClick={animate} disabled={isVisualizing}>
+            Visualize!
           </Button>
           <Button variant="outline" onClick={generateMaze} disabled={isVisualizing} color="white">
             Generate Maze
