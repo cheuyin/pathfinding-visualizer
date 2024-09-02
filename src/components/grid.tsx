@@ -83,4 +83,5 @@ export const Grid: React.FC<GridProps> = ({
 const Table = styled.table`
   border-collapse: collapse;
   flex: 1;
+  overflow: hidden;
 `;
