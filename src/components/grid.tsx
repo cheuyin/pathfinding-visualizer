@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { GridCell } from './grid-cell';
 import { useEffect, useState } from 'react';
-import { Center } from '@mantine/core';
 import { Coord, Grid as GridType, Node } from '../types/types';
 
 interface GridProps {
@@ -40,51 +39,48 @@ export const Grid: React.FC<GridProps> = ({
   }, [isMakingWalls]);
 
   return (
-    <>
-      <Center>
-        <Table>
-          <tbody>
-            {grid.map((row, rowIdx) => (
-              <tr key={rowIdx}>
-                {row.map((node, colIdx) => (
-                  <GridCell
-                    key={`${colIdx} ${rowIdx}`}
-                    node={node}
-                    onMouseOver={(node) => {
-                      if (isMakingWalls) {
-                        onSetWall(node);
-                      }
-                    }}
-                    onBlankNodeClicked={(node) => {
-                      setIsMakingWalls(true);
-                      onSetWall(node);
-                    }}
-                    onSetSourceNode={(node) => {
-                      onSetSourceCoord({
-                        x: node.x,
-                        y: node.y,
-                      });
-                      onResetVisualization();
-                    }}
-                    onSetTargetNode={(node) => {
-                      onSetTargetCoord({
-                        x: node.x,
-                        y: node.y,
-                      });
-                      onResetVisualization();
-                    }}
-                    isVisualizing={isVisualizing}
-                  />
-                ))}
-              </tr>
+    <Table>
+      <tbody>
+        {grid.map((row, rowIdx) => (
+          <tr key={rowIdx}>
+            {row.map((node, colIdx) => (
+              <GridCell
+                key={`${colIdx} ${rowIdx}`}
+                node={node}
+                onMouseOver={(node) => {
+                  if (isMakingWalls) {
+                    onSetWall(node);
+                  }
+                }}
+                onBlankNodeClicked={(node) => {
+                  setIsMakingWalls(true);
+                  onSetWall(node);
+                }}
+                onSetSourceNode={(node) => {
+                  onSetSourceCoord({
+                    x: node.x,
+                    y: node.y,
+                  });
+                  onResetVisualization();
+                }}
+                onSetTargetNode={(node) => {
+                  onSetTargetCoord({
+                    x: node.x,
+                    y: node.y,
+                  });
+                  onResetVisualization();
+                }}
+                isVisualizing={isVisualizing}
+              />
             ))}
-          </tbody>
-        </Table>
-      </Center>
-    </>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 };
 
 const Table = styled.table`
   border-collapse: collapse;
+  flex: 1;
 `;

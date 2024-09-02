@@ -9,6 +9,7 @@ import {
   Group,
   MantineProvider,
   Select,
+  Stack,
   Text,
 } from '@mantine/core';
 import { dijkstra } from './utils/pathfinding-algorithms/dijkstra';
@@ -87,63 +88,70 @@ export const App = () => {
 
   return (
     <MantineProvider theme={theme}>
-      <Flex
-        ref={header}
-        align={'center'}
-        gap="24"
-        bg={'blue'}
-        py={16}
-        px={24}
-        justify={'space-between'}
-      >
-        <Flex align={'center'} gap={24}>
-          <Text size="xl" fw={800} c="white">
-            Pathfinding Visualizer
-          </Text>
-          <Group>
-            <Select
-              onChange={(value) => onAlgorithmSelection(value!)}
-              disabled={isVisualizing}
-              data={["Dijkstra's", 'A*', 'DFS']}
-              defaultValue="Dijkstra's"
-              allowDeselect={false}
-            />
-            <Button variant="outline" color="white" onClick={animate} disabled={isVisualizing}>
-              Visualize!
-            </Button>
-            <Button variant="outline" onClick={generateMaze} disabled={isVisualizing} color="white">
-              Generate Maze
-            </Button>
-            <Button variant="outline" color="white" onClick={resetGrid} disabled={isVisualizing}>
-              Reset Grid
-            </Button>
-            <Button
-              variant="outline"
-              color="white"
-              onClick={resetVisualization}
-              disabled={isVisualizing}
-            >
-              Reset Visualization
-            </Button>
-          </Group>
-        </Flex>
-        <ActionIcon
-          component="a"
-          href="https://github.com/cheuyin/pathfinding-visualizer"
-          target="_blank"
-          rel="noopener noreferrer"
+      <Stack h={windowHeight} gap={0}>
+        <Flex
+          ref={header}
+          align={'center'}
+          gap="24"
+          bg={'blue'}
+          py={16}
+          px={24}
+          justify={'space-between'}
         >
-          <IconBrandGithubFilled />
-        </ActionIcon>
-      </Flex>
-      <Grid
-        grid={grid}
-        isVisualizing={isVisualizing}
-        onResetVisualization={resetVisualization}
-        onSetSourceCoord={setSourceCoord}
-        onSetTargetCoord={setTargetCoord}
-        onSetWall={setWall}
-      />
+          <Flex align={'center'} gap={24}>
+            <Text size="xl" fw={800} c="white">
+              Pathfinding Visualizer
+            </Text>
+            <Group>
+              <Select
+                onChange={(value) => onAlgorithmSelection(value!)}
+                disabled={isVisualizing}
+                data={["Dijkstra's", 'A*', 'DFS']}
+                defaultValue="Dijkstra's"
+                allowDeselect={false}
+              />
+              <Button variant="outline" color="white" onClick={animate} disabled={isVisualizing}>
+                Visualize!
+              </Button>
+              <Button
+                variant="outline"
+                onClick={generateMaze}
+                disabled={isVisualizing}
+                color="white"
+              >
+                Generate Maze
+              </Button>
+              <Button variant="outline" color="white" onClick={resetGrid} disabled={isVisualizing}>
+                Reset Grid
+              </Button>
+              <Button
+                variant="outline"
+                color="white"
+                onClick={resetVisualization}
+                disabled={isVisualizing}
+              >
+                Reset Visualization
+              </Button>
+            </Group>
+          </Flex>
+          <ActionIcon
+            component="a"
+            href="https://github.com/cheuyin/pathfinding-visualizer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconBrandGithubFilled />
+          </ActionIcon>
+        </Flex>
+        <Grid
+          grid={grid}
+          isVisualizing={isVisualizing}
+          onResetVisualization={resetVisualization}
+          onSetSourceCoord={setSourceCoord}
+          onSetTargetCoord={setTargetCoord}
+          onSetWall={setWall}
+        />
+      </Stack>
     </MantineProvider>
   );
 };
