@@ -71,6 +71,8 @@ const Cell = styled.td<{
   width: 25px;
   height: 25px;
   background-color: ${(props) => props.$bgColor};
+  cursor: ${(props) =>
+    (props.$nodeType === NodeType.SOURCE || props.$nodeType === NodeType.TARGET) && 'pointer'};
   ${(props) =>
     props.$nodeType === NodeType.VISITED
       ? css`
@@ -90,7 +92,7 @@ const Cell = styled.td<{
           animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         `
-      : null}
+      : null};
 `;
 
 const getBackgroundColor = (type: NodeType): string => {
