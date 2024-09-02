@@ -55,7 +55,7 @@ export const App = () => {
       <Flex align={'center'} gap="24" bg={'blue'} py={16} px={24} justify={'space-between'}>
         <Flex align={'center'} gap={24}>
           <Text size="xl" fw={800} c="white">
-            Pathfinding Algorithm
+            Pathfinding Visualizer
           </Text>
           <Group>
             <Select
