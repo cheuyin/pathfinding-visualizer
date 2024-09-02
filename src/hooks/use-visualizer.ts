@@ -6,10 +6,9 @@ import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 
-const NUM_GRID_COLS = 80;
-const NUM_GRID_ROWS = 30;
-
 export const useVisualizer = () => {
+  const [numGridCols, setNumGridCols] = useState(80);
+  const [numGridRows, setNumGridRows] = useState(30);
   const [sourceCoord, setSourceCoord] = useState({
     x: 10,
     y: 10,
@@ -19,10 +18,15 @@ export const useVisualizer = () => {
     y: 10,
   });
   const [grid, setGrid] = useState<GridType>(
-    createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord),
+    createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord),
   );
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
+
+  useEffect(() => {
+    setGrid(createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numGridCols, numGridRows]);
 
   useEffect(() => {
     setGrid((prevGrid) => {
@@ -137,7 +141,7 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
-    setGrid(createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord));
+    setGrid(createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord));
   };
 
   const resetVisualization = () => {
@@ -147,7 +151,7 @@ export const useVisualizer = () => {
   const generateMaze = () => {
     setIsVisualizing(true);
 
-    const blankGrid = createEmptyGrid(NUM_GRID_COLS, NUM_GRID_ROWS, sourceCoord, targetCoord);
+    const blankGrid = createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord);
 
     const walls = recursiveBacktracking(blankGrid, sourceCoord, targetCoord);
     for (let i = 0; i < walls.length; i++) {
@@ -175,6 +179,8 @@ export const useVisualizer = () => {
     generateMaze,
     setTargetCoord,
     setSourceCoord,
+    setNumGridCols,
+    setNumGridRows,
   };
 };
 

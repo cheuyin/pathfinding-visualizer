@@ -16,6 +16,7 @@ import { aStar } from './utils/pathfinding-algorithms/a-star';
 import { dfs } from './utils/pathfinding-algorithms/dfs';
 import { useVisualizer } from './hooks/use-visualizer';
 import { IconBrandGithubFilled } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
 
 const theme = createTheme({});
 
@@ -31,7 +32,41 @@ export const App = () => {
     generateMaze,
     setSourceCoord,
     setTargetCoord,
+    setNumGridCols,
+    setNumGridRows,
   } = useVisualizer();
+
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const header = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+      setWindowWidth(window.innerWidth);
+      if (header.current) {
+        setHeaderHeight(header.current.offsetHeight);
+      }
+    };
+
+    if (header.current) {
+      setHeaderHeight(header.current.offsetHeight);
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const numCols = Math.floor(windowWidth / 25);
+    const numRows = Math.floor((windowHeight - headerHeight) / 25);
+    setNumGridCols(numCols);
+    setNumGridRows(numRows);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windowHeight, windowWidth, headerHeight]);
 
   const onAlgorithmSelection = (algorithm: string) => {
     if (algorithm === "Dijkstra's") {
@@ -52,7 +87,15 @@ export const App = () => {
 
   return (
     <MantineProvider theme={theme}>
-      <Flex align={'center'} gap="24" bg={'blue'} py={16} px={24} justify={'space-between'}>
+      <Flex
+        ref={header}
+        align={'center'}
+        gap="24"
+        bg={'blue'}
+        py={16}
+        px={24}
+        justify={'space-between'}
+      >
         <Flex align={'center'} gap={24}>
           <Text size="xl" fw={800} c="white">
             Pathfinding Visualizer
