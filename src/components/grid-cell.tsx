@@ -1,9 +1,9 @@
 import styled, { css, keyframes } from 'styled-components';
 import { Node } from '../types/types';
 import { NodeType } from '../types/enums';
-import { IconMoodHappy } from '@tabler/icons-react';
-import { IconHome } from '@tabler/icons-react';
-import { Flex } from '@mantine/core';
+import { IconMoodHappyFilled } from '@tabler/icons-react';
+import { IconHomeFilled } from '@tabler/icons-react';
+import { Flex, useMantineTheme } from '@mantine/core';
 
 interface GridCellProps {
   node: Node;
@@ -22,6 +22,8 @@ export const GridCell: React.FC<GridCellProps> = ({
   onSetSourceNode,
   isVisualizing,
 }) => {
+  const theme = useMantineTheme();
+
   const handleOnMouseDown = () => {
     if (node.type === NodeType.BLANK) {
       onBlankNodeClicked(node);
@@ -63,8 +65,12 @@ export const GridCell: React.FC<GridCellProps> = ({
       onDrop={handleOnDrop}
     >
       <Flex w="100%" h="100%" align={'center'} justify={'center'}>
-        {node.type === NodeType.SOURCE && <IconMoodHappy size={20} />}
-        {node.type === NodeType.TARGET && <IconHome size={20} />}
+        {node.type === NodeType.SOURCE && (
+          <IconMoodHappyFilled size={20} color={theme.colors.blue[8]} />
+        )}
+        {node.type === NodeType.TARGET && (
+          <IconHomeFilled size={20} color={theme.colors.yellow[8]} />
+        )}
       </Flex>
     </Cell>
   );
