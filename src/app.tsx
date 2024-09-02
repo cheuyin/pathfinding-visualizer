@@ -31,8 +31,8 @@ export const App = () => {
     resetVisualization,
     setAlgorithm,
     generateMaze,
-    setSourceCoord,
-    setTargetCoord,
+    setSourceNode,
+    setTargetNode,
     setNumGridCols,
     setNumGridRows,
   } = useVisualizer();
@@ -147,8 +147,8 @@ export const App = () => {
           grid={grid}
           isVisualizing={isVisualizing}
           onResetVisualization={resetVisualization}
-          onSetSourceCoord={setSourceCoord}
-          onSetTargetCoord={setTargetCoord}
+          onSetSourceCoord={setSourceNode}
+          onSetTargetCoord={setTargetNode}
           onSetWall={setWall}
         />
       </Stack>

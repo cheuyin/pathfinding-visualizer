@@ -7,39 +7,36 @@ import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 
 export const useVisualizer = () => {
-  const [numGridCols, setNumGridCols] = useState(80);
-  const [numGridRows, setNumGridRows] = useState(30);
-  const [sourceCoord, setSourceCoord] = useState({
-    x: 10,
-    y: 10,
-  });
-  const [targetCoord, setTargetCoord] = useState({
-    x: 50,
-    y: 10,
-  });
-  const [grid, setGrid] = useState<GridType>(
-    createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord),
-  );
+  const [numGridCols, setNumGridCols] = useState<number | null>(null);
+  const [numGridRows, setNumGridRows] = useState<number | null>(null);
+  const [sourceCoord, setSourceCoord] = useState<Coord | null>(null);
+  const [targetCoord, setTargetCoord] = useState<Coord | null>(null);
+  const [grid, setGrid] = useState<GridType>([]);
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
 
   useEffect(() => {
-    setGrid(createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!numGridCols || !numGridRows) return;
+    const randomSourceCoord = generateRandomCoord(numGridCols, numGridRows);
+    const randomTargetCoord = generateRandomCoord(numGridCols, numGridRows);
+    setTargetCoord(randomTargetCoord);
+    setSourceCoord(randomSourceCoord);
+    setGrid(createEmptyGrid(numGridCols, numGridRows, randomSourceCoord, randomTargetCoord));
   }, [numGridCols, numGridRows]);
 
-  useEffect(() => {
+  const setTargetNode = (coord: Coord) => {
     setGrid((prevGrid) => {
-      if (prevGrid[targetCoord.y][targetCoord.x].type === NodeType.SOURCE) {
+      if (prevGrid[coord.y][coord.x].type === NodeType.SOURCE) {
         return prevGrid;
       }
+      setTargetCoord(coord);
       const gridCopy = prevGrid.map((row) =>
         row.map((node) => {
           const nodeCopy = { ...node };
           if (node.type === NodeType.TARGET) {
             node.type = NodeType.BLANK;
           }
-          if (node.x === targetCoord.x && node.y === targetCoord.y) {
+          if (node.x === coord.x && node.y === coord.y) {
             node.type = NodeType.TARGET;
           }
           return nodeCopy;
@@ -48,20 +45,21 @@ export const useVisualizer = () => {
 
       return gridCopy;
     });
-  }, [targetCoord]);
+  };
 
-  useEffect(() => {
+  const setSourceNode = (coord: Coord) => {
     setGrid((prevGrid) => {
-      if (prevGrid[sourceCoord.y][sourceCoord.x].type === NodeType.TARGET) {
+      if (prevGrid[coord.y][coord.x].type === NodeType.TARGET) {
         return prevGrid;
       }
+      setSourceCoord(coord);
       const gridCopy = prevGrid.map((row) =>
         row.map((node) => {
           const nodeCopy = { ...node };
           if (node.type === NodeType.SOURCE) {
             node.type = NodeType.BLANK;
           }
-          if (node.x === sourceCoord.x && node.y === sourceCoord.y) {
+          if (node.x === coord.x && node.y === coord.y) {
             node.type = NodeType.SOURCE;
           }
           return nodeCopy;
@@ -70,7 +68,14 @@ export const useVisualizer = () => {
 
       return gridCopy;
     });
-  }, [sourceCoord]);
+  };
+
+  const generateRandomCoord = (numCols: number, numRows: number): Coord => {
+    return {
+      x: Math.floor(Math.random() * numCols),
+      y: Math.floor(Math.random() * numRows),
+    };
+  };
 
   const setWall = (node: Node) => {
     if (isVisualizing) return false;
@@ -101,6 +106,8 @@ export const useVisualizer = () => {
   };
 
   const animate = () => {
+    if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
+
     setIsVisualizing(true);
 
     const gridCopy: GridType = createGridCopyWithNoPath(grid);
@@ -141,6 +148,7 @@ export const useVisualizer = () => {
   };
 
   const resetGrid = () => {
+    if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
     setGrid(createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord));
   };
 
@@ -149,6 +157,8 @@ export const useVisualizer = () => {
   };
 
   const generateMaze = () => {
+    if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
+
     setIsVisualizing(true);
 
     const blankGrid = createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord);
@@ -177,8 +187,8 @@ export const useVisualizer = () => {
     setAlgorithm,
     isVisualizing,
     generateMaze,
-    setTargetCoord,
-    setSourceCoord,
+    setTargetNode,
+    setSourceNode,
     setNumGridCols,
     setNumGridRows,
   };
