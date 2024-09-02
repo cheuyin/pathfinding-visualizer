@@ -67,7 +67,7 @@ const Cell = styled.td<{
   $bgColor: string;
   $nodeType: NodeType;
 }>`
-  border: 1px solid black;
+  border: 1px solid #b3b3b3;
   width: 25px;
   height: 25px;
   background-color: ${(props) => props.$bgColor};
