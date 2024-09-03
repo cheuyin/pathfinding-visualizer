@@ -100,7 +100,7 @@ export const App = () => {
         >
           <Flex align={'center'} gap={24}>
             <Text size="xl" fw={800} c="white">
-              Pathfinder
+              Pathfinding
             </Text>
             <Group>
               <Select
