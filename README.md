@@ -20,4 +20,4 @@ In the future, I want to add the following things:
 ## Acknowledgements
 I was inspired by [Clement Mihailescu](https://github.com/clementmihailescu/Pathfinding-Visualizer)'s version of this project, and I used his CSS animations because I thought it looked nice and I didn't want to spend too much time on styling.
 
-Aside from that, basically all the code in this project was written from scratch.
+Aside from that, all the code in this project was written from scratch.
