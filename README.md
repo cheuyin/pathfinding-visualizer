@@ -12,7 +12,7 @@ I was curious about pathfinding algorithms, and so I coded this web app to visua
 
 ## Roadmap
 In the future, I want to add the following things:
-- Prim, Kruskal, and recursive division maze generation algorithm
+- Prim, Kruskal, and recursive division maze generation algorithms
 - Weighted nodes
 - Nodes can be traversed diagonally
 - Better UI with more explanations of the algorithms and their execution time
