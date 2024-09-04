@@ -29,3 +29,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           commit_message: "Deploy React Vite app - ${GITHUB_SHA}"
+          cname: "pathfindingvisualizer.com"
