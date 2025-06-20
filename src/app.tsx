@@ -3,9 +3,7 @@ import { Grid } from '@/grid/components/grid';
 import { HeaderControls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
-import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
-import { aStar } from '@/algorithms/pathfinding/a-star';
-import { dfs } from '@/algorithms/pathfinding/dfs';
+import { PathfindingAlgorithmRegistry } from '@/algorithms/';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useRef, useState } from 'react';
 import { CELL_SIZE_PX } from './constants';
@@ -64,17 +62,17 @@ export const App = () => {
   const onAlgorithmSelection = (algorithm: string) => {
     setSelectedAlgorithm(algorithm);
     if (algorithm === "Dijkstra's") {
-      setAlgorithm(() => dijkstra);
+      setAlgorithm(() => PathfindingAlgorithmRegistry["Dijkstra's"]);
       return;
     }
 
     if (algorithm === 'A*') {
-      setAlgorithm(() => aStar);
+      setAlgorithm(() => PathfindingAlgorithmRegistry['A*']);
       return;
     }
 
     if (algorithm === 'DFS') {
-      setAlgorithm(() => dfs);
+      setAlgorithm(() => PathfindingAlgorithmRegistry.DFS);
       return;
     }
   };
