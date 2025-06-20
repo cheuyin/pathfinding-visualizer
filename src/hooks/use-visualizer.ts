@@ -1,241 +1,129 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { NodeType } from '../types/enums';
 import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
+import { createEmptyGrid, createGridCopyWithNoPath } from './grid-utils';
+import { gridReducer } from './grid-reducer';
 
 export const useVisualizer = () => {
   const [numGridCols, setNumGridCols] = useState<number | null>(null);
   const [numGridRows, setNumGridRows] = useState<number | null>(null);
   const [sourceCoord, setSourceCoord] = useState<Coord | null>(null);
   const [targetCoord, setTargetCoord] = useState<Coord | null>(null);
-  const [grid, setGrid] = useState<GridType>([]);
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
 
+  // Grid managed by reducer
+  const [grid, dispatchGrid] = useReducer(gridReducer, [] as GridType);
+
+  // ------ Initialization --------------------------------------------------
   useEffect(() => {
     if (!numGridCols || !numGridRows) return;
-    const randomSourceCoord = generateRandomCoord(numGridCols, numGridRows);
-    const randomTargetCoord = generateRandomCoord(numGridCols, numGridRows);
-    setTargetCoord(randomTargetCoord);
-    setSourceCoord(randomSourceCoord);
-    setGrid(createEmptyGrid(numGridCols, numGridRows, randomSourceCoord, randomTargetCoord));
+    const randomSource = generateRandomCoord(numGridCols, numGridRows);
+    const randomTarget = generateRandomCoord(numGridCols, numGridRows);
+    setSourceCoord(randomSource);
+    setTargetCoord(randomTarget);
+    const freshGrid = createEmptyGrid(numGridCols, numGridRows, randomSource, randomTarget);
+    dispatchGrid({ type: 'RESET', grid: freshGrid });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numGridCols, numGridRows]);
 
-  const setTargetNode = (coord: Coord) => {
-    setGrid((prevGrid) => {
-      if (prevGrid[coord.y][coord.x].type === NodeType.SOURCE) {
-        return prevGrid;
-      }
-      setTargetCoord(coord);
-      const gridCopy = prevGrid.map((row) =>
-        row.map((node) => {
-          const nodeCopy = { ...node };
-          if (node.type === NodeType.TARGET) {
-            node.type = NodeType.BLANK;
-          }
-          if (node.x === coord.x && node.y === coord.y) {
-            node.type = NodeType.TARGET;
-          }
-          return nodeCopy;
-        }),
-      );
-
-      return gridCopy;
-    });
+  // ------ User interactions ----------------------------------------------
+  const setWall = (coord: Coord) => {
+    if (isVisualizing) return;
+    dispatchGrid({ type: 'SET_WALL', coord });
   };
 
-  const setSourceNode = (coord: Coord) => {
-    setGrid((prevGrid) => {
-      if (prevGrid[coord.y][coord.x].type === NodeType.TARGET) {
-        return prevGrid;
-      }
-      setSourceCoord(coord);
-      const gridCopy = prevGrid.map((row) =>
-        row.map((node) => {
-          const nodeCopy = { ...node };
-          if (node.type === NodeType.SOURCE) {
-            node.type = NodeType.BLANK;
-          }
-          if (node.x === coord.x && node.y === coord.y) {
-            node.type = NodeType.SOURCE;
-          }
-          return nodeCopy;
-        }),
-      );
-
-      return gridCopy;
-    });
+  const updateSource = (coord: Coord) => {
+    setSourceCoord(coord);
+    dispatchGrid({ type: 'SET_SOURCE', coord });
   };
 
-  const generateRandomCoord = (numCols: number, numRows: number): Coord => {
-    return {
-      x: Math.floor(Math.random() * numCols),
-      y: Math.floor(Math.random() * numRows),
-    };
+  const updateTarget = (coord: Coord) => {
+    setTargetCoord(coord);
+    dispatchGrid({ type: 'SET_TARGET', coord });
   };
 
-  const setWall = (node: Node) => {
-    if (isVisualizing) return false;
-
-    const nodeCopy = { ...node };
-
-    if (nodeCopy.type === NodeType.BLANK) {
-      nodeCopy.type = NodeType.WALL;
-    }
-
-    setGrid((prevGrid) => {
-      return prevGrid.map((prevRow) =>
-        prevRow.map((prevNode) => {
-          if (prevNode.x === nodeCopy.x && prevNode.y === nodeCopy.y) {
-            return nodeCopy;
-          } else {
-            return prevNode;
-          }
-        }),
-      );
-    });
-  };
-
-  const createShallowGridCopyWithUpdatedNode = (grid: GridType, node: Node) => {
-    const gridCopy = grid.map((row) => [...row]);
-    gridCopy[node.y][node.x] = node;
-    return gridCopy;
-  };
-
+  // ------ Algorithm Animation --------------------------------------------
   const animate = () => {
-    if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
-
+    if (!sourceCoord || !targetCoord) return;
     setIsVisualizing(true);
 
-    const gridCopy: GridType = createGridCopyWithNoPath(grid);
+    const workingGrid: GridType = createGridCopyWithNoPath(grid);
+    const { visitedNodes, pathToTarget } = algorithm(workingGrid, sourceCoord, targetCoord);
 
-    const algoResult = algorithm(gridCopy, sourceCoord, targetCoord);
-
-    for (let i = 0; i <= algoResult.visitedNodes.length; i++) {
-      if (i === algoResult.visitedNodes.length) {
+    // helper to mark nodes with a delay
+    const markWithDelay = (
+      coords: Coord[],
+      action: 'MARK_VISITED' | 'MARK_PATH',
+      delay: number,
+      onFinish: () => void,
+    ) => {
+      coords.forEach((c, idx) => {
         setTimeout(() => {
-          if (algoResult.pathToTarget.length > 0) {
-            for (let j = 0; j < algoResult.pathToTarget.length; j++) {
-              setTimeout(() => {
-                if (j == algoResult.pathToTarget.length - 1) {
-                  setIsVisualizing(false);
-                }
+          dispatchGrid({ type: action, coord: c });
+          if (idx === coords.length - 1) onFinish();
+        }, delay * idx);
+      });
+    };
 
-                const coord = algoResult.pathToTarget[j];
-                const node = gridCopy[coord.y][coord.x];
-                if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
-                node.type = NodeType.PATH;
-                setGrid(createShallowGridCopyWithUpdatedNode(gridCopy, node));
-              }, 20 * j);
-            }
-          } else {
-            setIsVisualizing(false);
-          }
-        }, 1 * i);
-      } else {
-        setTimeout(() => {
-          const coord = algoResult.visitedNodes[i];
-          const node = gridCopy[coord.y][coord.x];
-          if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) return;
-          node.type = NodeType.VISITED;
-          setGrid(createShallowGridCopyWithUpdatedNode(gridCopy, node));
-        }, 1 * i);
+    markWithDelay(visitedNodes, 'MARK_VISITED', 2, () => {
+      if (pathToTarget.length === 0) {
+        setIsVisualizing(false);
+        return;
       }
-    }
+      markWithDelay(pathToTarget, 'MARK_PATH', 20, () => setIsVisualizing(false));
+    });
   };
 
   const resetGrid = () => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
-    setGrid(createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord));
+    dispatchGrid({
+      type: 'RESET',
+      grid: createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord),
+    });
   };
 
-  const resetVisualization = () => {
-    setGrid(createGridCopyWithNoPath(grid));
-  };
+  const resetVisualization = () => dispatchGrid({ type: 'CLEAR_VISUALIZATION' });
 
   const generateMaze = () => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
-
     setIsVisualizing(true);
 
-    const blankGrid = createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord);
+    const freshGrid = createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord);
+    dispatchGrid({ type: 'RESET', grid: freshGrid });
 
-    const walls = recursiveBacktracking(blankGrid, sourceCoord, targetCoord);
-    for (let i = 0; i < walls.length; i++) {
+    const walls = recursiveBacktracking(freshGrid, sourceCoord, targetCoord);
+    walls.forEach((c, idx) => {
       setTimeout(() => {
-        const node = blankGrid[walls[i].y][walls[i].x];
-        setWall(node);
-
-        if (i == walls.length - 1) {
-          setIsVisualizing(false);
-        }
-      }, 1 * i);
-    }
-
-    setGrid(blankGrid);
+        dispatchGrid({ type: 'SET_WALL', coord: c });
+        if (idx === walls.length - 1) setIsVisualizing(false);
+      }, idx); // 1 ms per wall for same speed as before
+    });
   };
 
+  // -----------------------------------------------------------------------
   return {
     grid,
-    setWall,
+    isVisualizing,
     animate,
     resetGrid,
     resetVisualization,
     setAlgorithm,
-    isVisualizing,
     generateMaze,
-    setTargetNode,
-    setSourceNode,
+    // outward API setters
+    setWall,
+    setSourceNode: updateSource,
+    setTargetNode: updateTarget,
     setNumGridCols,
     setNumGridRows,
   };
 };
 
-const createEmptyGrid = (
-  numCols: number,
-  numRows: number,
-  sourceCoord: Coord,
-  targetCoord: Coord,
-): GridType => {
-  const grid = [];
-  for (let i = 0; i < numRows; i++) {
-    const col = [];
-    for (let j = 0; j < numCols; j++) {
-      const node: Node = {
-        x: j,
-        y: i,
-        type: NodeType.BLANK,
-      };
-
-      if (j == sourceCoord.x && i == sourceCoord.y) {
-        node.type = NodeType.SOURCE;
-      } else if (j == targetCoord.x && i == targetCoord.y) {
-        node.type = NodeType.TARGET;
-      }
-
-      col.push(node);
-    }
-    grid.push(col);
-  }
-  return grid;
-};
-
-const createGridCopyWithNoPath = (grid: GridType) => {
-  return grid.map((row) =>
-    row.map((node) => {
-      if (node.type === NodeType.VISITED || node.type === NodeType.PATH) {
-        return {
-          ...node,
-          type: NodeType.BLANK,
-        };
-      } else {
-        return {
-          ...node,
-        };
-      }
-    }),
-  );
-};
+const generateRandomCoord = (numCols: number, numRows: number): Coord => ({
+  x: Math.floor(Math.random() * numCols),
+  y: Math.floor(Math.random() * numRows),
+});
