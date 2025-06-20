@@ -4,74 +4,79 @@ import { IconBrandGithubFilled } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 
 interface HeaderControlsProps {
-    isVisualizing: boolean;
-    selectedAlgorithm: string;
-    onSelectAlgorithm: (id: string) => void;
-    onVisualize: () => void;
-    onGenerateMaze: () => void;
-    onResetGrid: () => void;
-    onResetVisualization: () => void;
+  isVisualizing: boolean;
+  selectedAlgorithm: string;
+  onSelectAlgorithm: (id: string) => void;
+  onVisualize: () => void;
+  onGenerateMaze: () => void;
+  onResetGrid: () => void;
+  onResetVisualization: () => void;
 }
 
 export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
-    (
-        {
-            isVisualizing,
-            selectedAlgorithm,
-            onSelectAlgorithm,
-            onVisualize,
-            onGenerateMaze,
-            onResetGrid,
-            onResetVisualization,
-        },
-        ref,
-    ) => {
-        const pathfindingOptions = Object.keys(PathfindingAlgorithmRegistry);
-
-        return (
-            <Flex ref={ref} align="center" gap="24" bg="blue" py={16} px={24} justify="space-between">
-                <Flex align="center" gap={24}>
-                    <Text size="xl" fw={800} c="white">
-                        Pathfinding Visualizer
-                    </Text>
-                    <Group>
-                        <Select
-                            onChange={(value) => value && onSelectAlgorithm(value)}
-                            disabled={isVisualizing}
-                            data={pathfindingOptions}
-                            value={selectedAlgorithm}
-                            allowDeselect={false}
-                        />
-                        <Button variant="outline" color="white" onClick={onVisualize} disabled={isVisualizing}>
-                            Visualize!
-                        </Button>
-                        <Button variant="outline" onClick={onGenerateMaze} disabled={isVisualizing} color="white">
-                            Generate Maze
-                        </Button>
-                        <Button variant="outline" color="white" onClick={onResetGrid} disabled={isVisualizing}>
-                            Reset Grid
-                        </Button>
-                        <Button
-                            variant="outline"
-                            color="white"
-                            onClick={onResetVisualization}
-                            disabled={isVisualizing}
-                        >
-                            Reset Visualization
-                        </Button>
-                    </Group>
-                </Flex>
-                <ActionIcon
-                    component="a"
-                    href="https://github.com/cheuyin/pathfinding-visualizer"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <IconBrandGithubFilled />
-                </ActionIcon>
-            </Flex>
-        );
+  (
+    {
+      isVisualizing,
+      selectedAlgorithm,
+      onSelectAlgorithm,
+      onVisualize,
+      onGenerateMaze,
+      onResetGrid,
+      onResetVisualization,
     },
+    ref,
+  ) => {
+    const pathfindingOptions = Object.keys(PathfindingAlgorithmRegistry);
+
+    return (
+      <Flex ref={ref} align="center" gap="24" bg="blue" py={16} px={24} justify="space-between">
+        <Flex align="center" gap={24}>
+          <Text size="xl" fw={800} c="white">
+            Pathfinding Visualizer
+          </Text>
+          <Group>
+            <Select
+              onChange={(value) => value && onSelectAlgorithm(value)}
+              disabled={isVisualizing}
+              data={pathfindingOptions}
+              value={selectedAlgorithm}
+              allowDeselect={false}
+            />
+            <Button variant="outline" color="white" onClick={onVisualize} disabled={isVisualizing}>
+              Visualize!
+            </Button>
+            <Button
+              variant="outline"
+              onClick={onGenerateMaze}
+              disabled={isVisualizing}
+              color="white"
+            >
+              Generate Maze
+            </Button>
+            <Button variant="outline" color="white" onClick={onResetGrid} disabled={isVisualizing}>
+              Reset Grid
+            </Button>
+            <Button
+              variant="outline"
+              color="white"
+              onClick={onResetVisualization}
+              disabled={isVisualizing}
+            >
+              Reset Visualization
+            </Button>
+          </Group>
+        </Flex>
+        <ActionIcon
+          component="a"
+          href="https://github.com/cheuyin/pathfinding-visualizer"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <IconBrandGithubFilled />
+        </ActionIcon>
+      </Flex>
+    );
+  },
 );
 
-HeaderControls.displayName = 'HeaderControls'; 
+HeaderControls.displayName = 'HeaderControls';

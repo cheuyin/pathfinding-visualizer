@@ -1,5 +1,5 @@
-import { recursiveBacktracking } from "./recursiveBacktracking";
+import { recursiveBacktracking } from './recursiveBacktracking';
 
 export const MazeAlgorithmRegistry = {
-    'Recursive Backtracking': recursiveBacktracking,
+  'Recursive Backtracking': recursiveBacktracking,
 } as const;

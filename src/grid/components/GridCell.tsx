@@ -6,101 +6,101 @@ import { Flex, useMantineTheme } from '@mantine/core';
 import { CELL_SIZE_PX } from '@/constants';
 
 interface GridCellProps {
-    node: Node;
-    onBlankNodeClicked: (selectedNode: Node) => void;
-    onMouseOver: (selectedNode: Node) => void;
-    onSetTargetNode: (selectedNode: Node) => void;
-    onSetSourceNode: (selectedNode: Node) => void;
-    isVisualizing: boolean;
+  node: Node;
+  onBlankNodeClicked: (selectedNode: Node) => void;
+  onMouseOver: (selectedNode: Node) => void;
+  onSetTargetNode: (selectedNode: Node) => void;
+  onSetSourceNode: (selectedNode: Node) => void;
+  isVisualizing: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = ({
-    node,
-    onBlankNodeClicked,
-    onMouseOver,
-    onSetTargetNode,
-    onSetSourceNode,
-    isVisualizing,
+  node,
+  onBlankNodeClicked,
+  onMouseOver,
+  onSetTargetNode,
+  onSetSourceNode,
+  isVisualizing,
 }) => {
-    const theme = useMantineTheme();
+  const theme = useMantineTheme();
 
-    const handleOnMouseDown = () => {
-        if (node.type === NodeType.BLANK) {
-            onBlankNodeClicked(node);
-        }
-    };
+  const handleOnMouseDown = () => {
+    if (node.type === NodeType.BLANK) {
+      onBlankNodeClicked(node);
+    }
+  };
 
-    const handleOnDragStart: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-        event.dataTransfer.setData(
-            'text',
-            node.type === NodeType.SOURCE ? 'SOURCE' : node.type === NodeType.TARGET ? 'TARGET' : '',
-        );
-    };
-
-    const handleOnDragOver: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-        event.preventDefault();
-    };
-
-    const handleOnDrop: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-        event.preventDefault();
-        const data = event.dataTransfer.getData('text');
-        if (data === 'SOURCE') {
-            onSetSourceNode(node);
-        } else if (data === 'TARGET') {
-            onSetTargetNode(node);
-        }
-    };
-
-    return (
-        <Cell
-            $nodeType={node.type}
-            onMouseOver={() => onMouseOver(node)}
-            onMouseDown={handleOnMouseDown}
-            draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
-            onDragStart={handleOnDragStart}
-            onDragOver={handleOnDragOver}
-            onDrop={handleOnDrop}
-        >
-            <Flex w="100%" h="100%" align={'center'} justify={'center'}>
-                {node.type === NodeType.SOURCE && (
-                    <IconMoodHappyFilled size={20} color={theme.colors.blue[8]} />
-                )}
-                {node.type === NodeType.TARGET && (
-                    <IconHomeFilled size={20} color={theme.colors.yellow[8]} />
-                )}
-            </Flex>
-        </Cell>
+  const handleOnDragStart: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.dataTransfer.setData(
+      'text',
+      node.type === NodeType.SOURCE ? 'SOURCE' : node.type === NodeType.TARGET ? 'TARGET' : '',
     );
+  };
+
+  const handleOnDragOver: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.preventDefault();
+  };
+
+  const handleOnDrop: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text');
+    if (data === 'SOURCE') {
+      onSetSourceNode(node);
+    } else if (data === 'TARGET') {
+      onSetTargetNode(node);
+    }
+  };
+
+  return (
+    <Cell
+      $nodeType={node.type}
+      onMouseOver={() => onMouseOver(node)}
+      onMouseDown={handleOnMouseDown}
+      draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
+      onDragStart={handleOnDragStart}
+      onDragOver={handleOnDragOver}
+      onDrop={handleOnDrop}
+    >
+      <Flex w="100%" h="100%" align={'center'} justify={'center'}>
+        {node.type === NodeType.SOURCE && (
+          <IconMoodHappyFilled size={20} color={theme.colors.blue[8]} />
+        )}
+        {node.type === NodeType.TARGET && (
+          <IconHomeFilled size={20} color={theme.colors.yellow[8]} />
+        )}
+      </Flex>
+    </Cell>
+  );
 };
 
 const Cell = styled.td<{
-    $nodeType: NodeType;
+  $nodeType: NodeType;
 }>`
   border: 1px solid #9ae2ff;
   width: ${CELL_SIZE_PX}px;
   height: ${CELL_SIZE_PX}px;
   cursor: ${(props) =>
-        (props.$nodeType === NodeType.SOURCE || props.$nodeType === NodeType.TARGET) && 'pointer'};
+    (props.$nodeType === NodeType.SOURCE || props.$nodeType === NodeType.TARGET) && 'pointer'};
   ${(props) =>
-        props.$nodeType === NodeType.VISITED
-            ? css`
+    props.$nodeType === NodeType.VISITED
+      ? css`
           animation: ${visitedNodeAnimation} 2s;
           animation-timing-function: ease-out;
           animation-fill-mode: forwards;
         `
-            : props.$nodeType === NodeType.PATH
-                ? css`
-          animation: ${pathNodeAnimation} 1s;
-          animation-timing-function: ease-out;
-          animation-fill-mode: forwards;
-        `
-                : props.$nodeType === NodeType.WALL
-                    ? css`
-          animation: ${wallNodeAnimation} 0.25s;
-          animation-timing-function: ease-in;
-          animation-fill-mode: forwards;
-        `
-                    : null};
+      : props.$nodeType === NodeType.PATH
+        ? css`
+            animation: ${pathNodeAnimation} 1s;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+          `
+        : props.$nodeType === NodeType.WALL
+          ? css`
+              animation: ${wallNodeAnimation} 0.25s;
+              animation-timing-function: ease-in;
+              animation-fill-mode: forwards;
+            `
+          : null};
 `;
 
 const visitedNodeAnimation = keyframes`
@@ -120,4 +120,4 @@ const wallNodeAnimation = keyframes`
   0% { transform: scale(.3); background-color: rgb(12,53,71); }
   50% { transform: scale(1.2); background-color: rgb(12,53,71); }
   100% { transform: scale(1.0); background-color: rgb(12,53,71); }
-`; 
+`;

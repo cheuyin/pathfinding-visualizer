@@ -1,1 +1,1 @@
-export { dijkstra } from '@/utils/pathfinding-algorithms/dijkstra'; 
+export { dijkstra } from '@/utils/pathfinding-algorithms/dijkstra';

@@ -1,1 +1,1 @@
-export { aStar } from '@/utils/pathfinding-algorithms/a-star'; 
+export { aStar } from '@/utils/pathfinding-algorithms/a-star';
