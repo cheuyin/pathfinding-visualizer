@@ -92,18 +92,18 @@ const Cell = styled.td<{
           animation-fill-mode: forwards;
         `
       : props.$nodeType === NodeType.PATH
-      ? css`
+        ? css`
           animation: ${pathNodeAnimation} 1s;
           animation-timing-function: ease-out;
           animation-fill-mode: forwards;
         `
-      : props.$nodeType === NodeType.WALL
-      ? css`
+        : props.$nodeType === NodeType.WALL
+          ? css`
           animation: ${wallNodeAnimation} 0.25s;
           animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         `
-      : null};
+          : null};
 `;
 
 const visitedNodeAnimation = keyframes`
