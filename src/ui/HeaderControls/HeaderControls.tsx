@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { ActionIcon, Button, Flex, Group, Select, Text } from '@mantine/core';
 import { IconBrandGithubFilled } from '@tabler/icons-react';
-import { AlgorithmRegistry } from '@/algorithms';
+import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 
 interface HeaderControlsProps {
     isVisualizing: boolean;
@@ -26,7 +26,8 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
         },
         ref,
     ) => {
-        const algoOptions = Object.keys(AlgorithmRegistry);
+        const pathfindingOptions = Object.keys(PathfindingAlgorithmRegistry);
+
         return (
             <Flex ref={ref} align="center" gap="24" bg="blue" py={16} px={24} justify="space-between">
                 <Flex align="center" gap={24}>
@@ -37,7 +38,7 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
                         <Select
                             onChange={(value) => value && onSelectAlgorithm(value)}
                             disabled={isVisualizing}
-                            data={algoOptions}
+                            data={pathfindingOptions}
                             value={selectedAlgorithm}
                             allowDeselect={false}
                         />
