@@ -85,53 +85,18 @@ Error generating stack: `+i.message+`
           animation-fill-mode: forwards;
         `:null};
 `,Tb=yc`
-  0% {
-    transform: scale(.3);
-    background-color: rgba(0, 0, 66, 0.75);
-    border-radius: 100%;
-  }
-
-  50% {
-    background-color: rgba(17, 104, 217, 0.75);
-  }
-
-  75% {
-    transform: scale(1.2);
-    background-color: rgba(0, 217, 159, 0.75);
-  }
-
-  100% {
-    transform: scale(1.0);
-    background-color: rgba(0, 190, 218, 0.75);
-  }
+  0% { transform: scale(.3); background-color: rgba(0,0,66,.75); border-radius:100%; }
+  50% { background-color: rgba(17,104,217,.75); }
+  75% { transform: scale(1.2); background-color: rgba(0,217,159,.75); }
+  100% { transform: scale(1.0); background-color: rgba(0,190,218,.75); }
 `,Nb=yc`
-  0% {
-    transform: scale(.3);
-  }
-
-  50% {
-    transform: scale(1.2);
-  }
-
-  100% {
-    transform: scale(1.0);
-    background-color: yellow;
-  }
+  0% { transform: scale(.3); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.0); background-color: yellow; }
 `,_b=yc`
-  0% {
-    transform: scale(.3);
-    background-color: rgb(12, 53, 71);
-  }
-
-  50% {
-    transform: scale(1.2);
-    background-color: rgb(12, 53, 71);
-  }
-
-  100% {
-    transform: scale(1.0);
-    background-color: rgb(12, 53, 71);
-  }
+  0% { transform: scale(.3); background-color: rgb(12,53,71); }
+  50% { transform: scale(1.2); background-color: rgb(12,53,71); }
+  100% { transform: scale(1.0); background-color: rgb(12,53,71); }
 `,Ab=({grid:e,isVisualizing:t,onSetWall:n,onSetSourceCoord:r,onSetTargetCoord:o,onResetVisualization:i})=>{const[s,l]=w.useState(!1);return w.useEffect(()=>{const a=()=>{s&&l(!1)};return s&&window.addEventListener("mouseup",a),()=>{window.removeEventListener("mouseup",a)}},[s]),b.jsx(Lb,{children:b.jsx("tbody",{children:e.map((a,u)=>b.jsx("tr",{children:a.map((d,c)=>b.jsx(Rb,{node:d,onMouseOver:f=>{s&&n(f)},onBlankNodeClicked:f=>{l(!0),n(f)},onSetSourceNode:f=>{r({x:f.x,y:f.y}),i()},onSetTargetNode:f=>{o({x:f.x,y:f.y}),i()},isVisualizing:t},`${c} ${u}`))},u))})})},Lb=gc.table`
   border-collapse: collapse;
   flex: 1;
