@@ -1,6 +1,6 @@
 import '@mantine/core/styles.css';
 import { Grid } from '@/grid/components/Grid';
-import { HeaderControls } from './components/header-controls';
+import { HeaderControls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
 import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
