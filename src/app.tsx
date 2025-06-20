@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { Grid } from './components/grid';
+import { Grid } from '@/grid/components/Grid';
 import { HeaderControls } from './components/header-controls';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
