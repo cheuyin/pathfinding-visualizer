@@ -1,10 +1,10 @@
 import '@mantine/core/styles.css';
-import { Grid } from '@/grid/components/Grid';
+import { Grid } from '@/grid/components/grid';
 import { HeaderControls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
 import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
-import { aStar } from '@/algorithms/pathfinding/aStar';
+import { aStar } from '@/algorithms/pathfinding/a-star';
 import { dfs } from '@/algorithms/pathfinding/dfs';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useRef, useState } from 'react';

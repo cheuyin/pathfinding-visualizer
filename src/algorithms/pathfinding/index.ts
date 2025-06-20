@@ -1,5 +1,5 @@
 import { dijkstra } from './dijkstra';
-import { aStar } from './aStar';
+import { aStar } from './a-star';
 import { dfs } from './dfs';
 import { Algorithm } from '@/types/types';
 

@@ -1,1 +1,1 @@
-export * from './HeaderControls/HeaderControls';
+export * from './header-controls/header-controls';

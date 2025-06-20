@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { GridCell } from './GridCell';
+import { GridCell } from './grid-cell';
 import { useEffect, useState } from 'react';
 import { Coord, Grid as GridType, Node } from '@/types/types';
 

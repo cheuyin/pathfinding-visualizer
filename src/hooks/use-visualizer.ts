@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
 import { Algorithm } from '../types/types';
-import { recursiveBacktracking } from '@/algorithms/maze/recursiveBacktracking';
+import { recursiveBacktracking } from '@/algorithms/maze/recursive-backtracking';
 import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-utils';
 import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
