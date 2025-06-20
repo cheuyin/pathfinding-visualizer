@@ -1,7 +1,5 @@
 import { useEffect, useReducer, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
-import { NodeType } from '../types/enums';
-import { Node } from '../types/types';
 import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
 import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
