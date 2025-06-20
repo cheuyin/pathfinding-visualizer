@@ -1,22 +1,12 @@
 import '@mantine/core/styles.css';
 import { Grid } from './components/grid';
+import { HeaderControls } from './components/header-controls';
 import './app.css';
-import {
-  ActionIcon,
-  Button,
-  createTheme,
-  Flex,
-  Group,
-  MantineProvider,
-  Select,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { createTheme, MantineProvider, Stack } from '@mantine/core';
 import { dijkstra } from './utils/pathfinding-algorithms/dijkstra';
 import { aStar } from './utils/pathfinding-algorithms/a-star';
 import { dfs } from './utils/pathfinding-algorithms/dfs';
 import { useVisualizer } from './hooks/use-visualizer';
-import { IconBrandGithubFilled } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import { CELL_SIZE_PX } from './constants';
 
@@ -42,6 +32,7 @@ export const App = () => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const header = useRef<HTMLDivElement>(null);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState("Dijkstra's");
 
   useEffect(() => {
     const handleResize = () => {
@@ -71,6 +62,7 @@ export const App = () => {
   }, [windowHeight, windowWidth, headerHeight]);
 
   const onAlgorithmSelection = (algorithm: string) => {
+    setSelectedAlgorithm(algorithm);
     if (algorithm === "Dijkstra's") {
       setAlgorithm(() => dijkstra);
       return;
@@ -90,60 +82,16 @@ export const App = () => {
   return (
     <MantineProvider theme={theme}>
       <Stack h={windowHeight} gap={0}>
-        <Flex
+        <HeaderControls
           ref={header}
-          align={'center'}
-          gap="24"
-          bg={'blue'}
-          py={16}
-          px={24}
-          justify={'space-between'}
-        >
-          <Flex align={'center'} gap={24}>
-            <Text size="xl" fw={800} c="white">
-              Pathfinding Visualizer
-            </Text>
-            <Group>
-              <Select
-                onChange={(value) => onAlgorithmSelection(value!)}
-                disabled={isVisualizing}
-                data={["Dijkstra's", 'A*', 'DFS']}
-                defaultValue="Dijkstra's"
-                allowDeselect={false}
-              />
-              <Button variant="outline" color="white" onClick={animate} disabled={isVisualizing}>
-                Visualize!
-              </Button>
-              <Button
-                variant="outline"
-                onClick={generateMaze}
-                disabled={isVisualizing}
-                color="white"
-              >
-                Generate Maze
-              </Button>
-              <Button variant="outline" color="white" onClick={resetGrid} disabled={isVisualizing}>
-                Reset Grid
-              </Button>
-              <Button
-                variant="outline"
-                color="white"
-                onClick={resetVisualization}
-                disabled={isVisualizing}
-              >
-                Reset Visualization
-              </Button>
-            </Group>
-          </Flex>
-          <ActionIcon
-            component="a"
-            href="https://github.com/cheuyin/pathfinding-visualizer"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <IconBrandGithubFilled />
-          </ActionIcon>
-        </Flex>
+          isVisualizing={isVisualizing}
+          selectedAlgorithm={selectedAlgorithm}
+          onSelectAlgorithm={onAlgorithmSelection}
+          onVisualize={animate}
+          onGenerateMaze={generateMaze}
+          onResetGrid={resetGrid}
+          onResetVisualization={resetVisualization}
+        />
         <Grid
           grid={grid}
           isVisualizing={isVisualizing}
