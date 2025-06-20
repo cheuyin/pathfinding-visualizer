@@ -1,5 +1,5 @@
-import { NodeType } from '../types/enums';
-import type { Coord, Grid, Node } from '../types/types';
+import { NodeType } from '@/types/enums';
+import type { Coord, Grid, Node } from '@/types/types';
 import { replaceNodeInGrid } from './grid-utils';
 
 export type GridAction =

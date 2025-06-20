@@ -1,10 +1,10 @@
 import { useEffect, useReducer, useState } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
-import { dijkstra } from '../utils/pathfinding-algorithms/dijkstra';
+import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
 import { Algorithm } from '../types/types';
-import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
-import { createEmptyGrid, createGridCopyWithNoPath } from './grid-utils';
-import { gridReducer } from './grid-reducer';
+import { recursiveBacktracking } from '@/algorithms/maze/recursiveBacktracking';
+import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-utils';
+import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
 
 export const useVisualizer = () => {
@@ -61,7 +61,7 @@ export const useVisualizer = () => {
       delay: number,
       onFinish: () => void,
     ) => {
-      coords.forEach((c, idx) => {
+      coords.forEach((c: Coord, idx: number) => {
         setTimeout(() => {
           dispatchGrid({ type: action, coord: c });
           if (idx === coords.length - 1) onFinish();

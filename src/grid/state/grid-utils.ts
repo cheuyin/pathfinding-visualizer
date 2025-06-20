@@ -1,9 +1,7 @@
-import { NodeType } from '../types/enums';
-import type { Coord, Grid, Node } from '../types/types';
+import { NodeType } from '@/types/enums';
+import type { Coord, Grid, Node } from '@/types/types';
 
-/**
- * Create an empty grid with SOURCE and TARGET nodes placed at provided coordinates.
- */
+// Create an empty grid with SOURCE and TARGET nodes.
 export const createEmptyGrid = (
     numCols: number,
     numRows: number,
@@ -24,9 +22,7 @@ export const createEmptyGrid = (
     return grid;
 };
 
-/**
- * Clone grid but remove VISITED and PATH markings.
- */
+// Clone grid but remove VISITED and PATH markings.
 export const createGridCopyWithNoPath = (grid: Grid): Grid =>
     grid.map((row) =>
         row.map((node) => {
@@ -37,9 +33,7 @@ export const createGridCopyWithNoPath = (grid: Grid): Grid =>
         }),
     );
 
-/**
- * Shallow-clone grid and override a single node.
- */
+// Shallow-clone grid and override a single node.
 export const replaceNodeInGrid = (grid: Grid, node: Node): Grid => {
     const cloned = grid.map((r) => [...r]);
     cloned[node.y][node.x] = node;
