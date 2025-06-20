@@ -18,6 +18,7 @@ import { dfs } from './utils/pathfinding-algorithms/dfs';
 import { useVisualizer } from './hooks/use-visualizer';
 import { IconBrandGithubFilled } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
+import { CELL_SIZE_PX } from './constants';
 
 const theme = createTheme({});
 
@@ -31,8 +32,8 @@ export const App = () => {
     resetVisualization,
     setAlgorithm,
     generateMaze,
-    setSourceNode,
-    setTargetNode,
+    updateSource,
+    updateTarget,
     setNumGridCols,
     setNumGridRows,
   } = useVisualizer();
@@ -62,8 +63,8 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    const numCols = Math.floor(windowWidth / 25);
-    const numRows = Math.floor((windowHeight - headerHeight) / 25);
+    const numCols = Math.floor(windowWidth / CELL_SIZE_PX);
+    const numRows = Math.floor((windowHeight - headerHeight) / CELL_SIZE_PX);
     setNumGridCols(numCols);
     setNumGridRows(numRows);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,8 +148,8 @@ export const App = () => {
           grid={grid}
           isVisualizing={isVisualizing}
           onResetVisualization={resetVisualization}
-          onSetSourceCoord={setSourceNode}
-          onSetTargetCoord={setTargetNode}
+          onSetSourceCoord={updateSource}
+          onSetTargetCoord={updateTarget}
           onSetWall={setWall}
         />
       </Stack>

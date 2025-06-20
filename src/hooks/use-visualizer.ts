@@ -5,6 +5,7 @@ import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '../utils/maze-generation-algorithms/recursive-backtracking';
 import { createEmptyGrid, createGridCopyWithNoPath } from './grid-utils';
 import { gridReducer } from './grid-reducer';
+import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
 
 export const useVisualizer = () => {
   const [numGridCols, setNumGridCols] = useState<number | null>(null);
@@ -68,12 +69,12 @@ export const useVisualizer = () => {
       });
     };
 
-    markWithDelay(visitedNodes, 'MARK_VISITED', 2, () => {
+    markWithDelay(visitedNodes, 'MARK_VISITED', VISITED_NODE_DELAY_MS, () => {
       if (pathToTarget.length === 0) {
         setIsVisualizing(false);
         return;
       }
-      markWithDelay(pathToTarget, 'MARK_PATH', 20, () => setIsVisualizing(false));
+      markWithDelay(pathToTarget, 'MARK_PATH', PATH_NODE_DELAY_MS, () => setIsVisualizing(false));
     });
   };
 
@@ -99,7 +100,7 @@ export const useVisualizer = () => {
       setTimeout(() => {
         dispatchGrid({ type: 'SET_WALL', coord: c });
         if (idx === walls.length - 1) setIsVisualizing(false);
-      }, idx); // 1 ms per wall for same speed as before
+      }, MAZE_WALL_DELAY_MS * idx);
     });
   };
 
@@ -114,8 +115,8 @@ export const useVisualizer = () => {
     generateMaze,
     // outward API setters
     setWall,
-    setSourceNode: updateSource,
-    setTargetNode: updateTarget,
+    updateSource,
+    updateTarget,
     setNumGridCols,
     setNumGridRows,
   };

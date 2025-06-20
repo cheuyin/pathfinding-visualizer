@@ -4,6 +4,7 @@ import { NodeType } from '../types/enums';
 import { IconMoodHappyFilled } from '@tabler/icons-react';
 import { IconHomeFilled } from '@tabler/icons-react';
 import { Flex, useMantineTheme } from '@mantine/core';
+import { CELL_SIZE_PX } from '../constants';
 
 interface GridCellProps {
   node: Node;
@@ -80,8 +81,8 @@ const Cell = styled.td<{
   $nodeType: NodeType;
 }>`
   border: 1px solid #9ae2ff;
-  width: 25px;
-  height: 25px;
+  width: ${CELL_SIZE_PX}px;
+  height: ${CELL_SIZE_PX}px;
   cursor: ${(props) =>
     (props.$nodeType === NodeType.SOURCE || props.$nodeType === NodeType.TARGET) && 'pointer'};
   ${(props) =>
