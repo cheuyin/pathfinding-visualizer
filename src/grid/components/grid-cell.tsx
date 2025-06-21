@@ -4,6 +4,7 @@ import { NodeType } from '@/types/enums';
 import { IconMoodHappyFilled, IconHomeFilled } from '@tabler/icons-react';
 import { Flex, useMantineTheme } from '@mantine/core';
 import { CELL_SIZE_PX } from '@/constants';
+import { memo } from 'react';
 
 interface GridCellProps {
   node: Node;
@@ -14,64 +15,61 @@ interface GridCellProps {
   isVisualizing: boolean;
 }
 
-export const GridCell: React.FC<GridCellProps> = ({
-  node,
-  onBlankNodeClicked,
-  onMouseOver,
-  onSetTargetNode,
-  onSetSourceNode,
-  isVisualizing,
-}) => {
-  const theme = useMantineTheme();
+export const GridCell: React.FC<GridCellProps> = memo(
+  ({ node, onBlankNodeClicked, onMouseOver, onSetTargetNode, onSetSourceNode, isVisualizing }) => {
+    const theme = useMantineTheme();
 
-  const handleOnMouseDown = () => {
-    if (node.type === NodeType.BLANK) {
-      onBlankNodeClicked(node);
-    }
-  };
+    const handleOnMouseDown = () => {
+      if (node.type === NodeType.BLANK) {
+        onBlankNodeClicked(node);
+      }
+    };
 
-  const handleOnDragStart: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-    event.dataTransfer.setData(
-      'text',
-      node.type === NodeType.SOURCE ? 'SOURCE' : node.type === NodeType.TARGET ? 'TARGET' : '',
+    const handleOnDragStart: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+      event.dataTransfer.setData(
+        'text',
+        node.type === NodeType.SOURCE ? 'SOURCE' : node.type === NodeType.TARGET ? 'TARGET' : '',
+      );
+    };
+
+    const handleOnDragOver: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+      event.preventDefault();
+    };
+
+    const handleOnDrop: React.DragEventHandler<HTMLTableCellElement> = (event) => {
+      event.preventDefault();
+      const data = event.dataTransfer.getData('text');
+      if (data === 'SOURCE') {
+        onSetSourceNode(node);
+      } else if (data === 'TARGET') {
+        onSetTargetNode(node);
+      }
+    };
+
+    return (
+      <Cell
+        $nodeType={node.type}
+        onMouseOver={() => onMouseOver(node)}
+        onMouseDown={handleOnMouseDown}
+        draggable={
+          !isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)
+        }
+        onDragStart={handleOnDragStart}
+        onDragOver={handleOnDragOver}
+        onDrop={handleOnDrop}
+      >
+        <Flex w="100%" h="100%" align={'center'} justify={'center'}>
+          {node.type === NodeType.SOURCE && (
+            <IconMoodHappyFilled size={20} color={theme.colors.blue[8]} />
+          )}
+          {node.type === NodeType.TARGET && (
+            <IconHomeFilled size={20} color={theme.colors.yellow[8]} />
+          )}
+        </Flex>
+      </Cell>
     );
-  };
-
-  const handleOnDragOver: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-    event.preventDefault();
-  };
-
-  const handleOnDrop: React.DragEventHandler<HTMLTableCellElement> = (event) => {
-    event.preventDefault();
-    const data = event.dataTransfer.getData('text');
-    if (data === 'SOURCE') {
-      onSetSourceNode(node);
-    } else if (data === 'TARGET') {
-      onSetTargetNode(node);
-    }
-  };
-
-  return (
-    <Cell
-      $nodeType={node.type}
-      onMouseOver={() => onMouseOver(node)}
-      onMouseDown={handleOnMouseDown}
-      draggable={!isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)}
-      onDragStart={handleOnDragStart}
-      onDragOver={handleOnDragOver}
-      onDrop={handleOnDrop}
-    >
-      <Flex w="100%" h="100%" align={'center'} justify={'center'}>
-        {node.type === NodeType.SOURCE && (
-          <IconMoodHappyFilled size={20} color={theme.colors.blue[8]} />
-        )}
-        {node.type === NodeType.TARGET && (
-          <IconHomeFilled size={20} color={theme.colors.yellow[8]} />
-        )}
-      </Flex>
-    </Cell>
-  );
-};
+  },
+);
 
 const Cell = styled.td<{
   $nodeType: NodeType;

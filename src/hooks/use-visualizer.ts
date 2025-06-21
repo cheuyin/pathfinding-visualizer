@@ -6,6 +6,7 @@ import { recursiveBacktracking } from '@/algorithms/maze/recursive-backtracking'
 import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-utils';
 import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
+import { useCallback } from 'react';
 
 export const useVisualizer = () => {
   const [numGridCols, setNumGridCols] = useState<number | null>(null);
@@ -31,23 +32,26 @@ export const useVisualizer = () => {
   }, [numGridCols, numGridRows]);
 
   // ------ User interactions ----------------------------------------------
-  const setWall = (coord: Coord) => {
-    if (isVisualizing) return;
-    dispatchGrid({ type: 'SET_WALL', coord });
-  };
+  const setWall = useCallback(
+    (coord: Coord) => {
+      if (isVisualizing) return;
+      dispatchGrid({ type: 'SET_WALL', coord });
+    },
+    [isVisualizing],
+  );
 
-  const updateSource = (coord: Coord) => {
+  const updateSource = useCallback((coord: Coord) => {
     setSourceCoord(coord);
     dispatchGrid({ type: 'SET_SOURCE', coord });
-  };
+  }, []);
 
-  const updateTarget = (coord: Coord) => {
+  const updateTarget = useCallback((coord: Coord) => {
     setTargetCoord(coord);
     dispatchGrid({ type: 'SET_TARGET', coord });
-  };
+  }, []);
 
   // ------ Algorithm Animation --------------------------------------------
-  const animate = () => {
+  const animate = useCallback(() => {
     if (!sourceCoord || !targetCoord) return;
     setIsVisualizing(true);
 
@@ -76,19 +80,19 @@ export const useVisualizer = () => {
       }
       markWithDelay(pathToTarget, 'MARK_PATH', PATH_NODE_DELAY_MS, () => setIsVisualizing(false));
     });
-  };
+  }, [sourceCoord, targetCoord, grid, algorithm]);
 
-  const resetGrid = () => {
+  const resetGrid = useCallback(() => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
     dispatchGrid({
       type: 'RESET',
       grid: createEmptyGrid(numGridCols, numGridRows, sourceCoord, targetCoord),
     });
-  };
+  }, [numGridCols, numGridRows, sourceCoord, targetCoord]);
 
-  const resetVisualization = () => dispatchGrid({ type: 'CLEAR_VISUALIZATION' });
+  const resetVisualization = useCallback(() => dispatchGrid({ type: 'CLEAR_VISUALIZATION' }), []);
 
-  const generateMaze = () => {
+  const generateMaze = useCallback(() => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
     setIsVisualizing(true);
 
@@ -102,7 +106,7 @@ export const useVisualizer = () => {
         if (idx === walls.length - 1) setIsVisualizing(false);
       }, MAZE_WALL_DELAY_MS * idx);
     });
-  };
+  }, [numGridCols, numGridRows, sourceCoord, targetCoord]);
 
   // -----------------------------------------------------------------------
   return {
