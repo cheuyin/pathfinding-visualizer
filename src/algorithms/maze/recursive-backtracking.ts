@@ -1,4 +1,4 @@
-import { Coord, Grid, MazeGenerationAlgorithm, Node } from '../../types/types';
+import { Coord, Grid, MazeGenerationAlgorithm, Node } from '@/types/types';
 import { assert, shuffle } from '@/utils';
 
 interface RBNode extends Node {

@@ -1,6 +1,6 @@
-import { NodeType } from '../../types/enums';
-import { Algorithm, Coord, Grid } from '../../types/types';
-import { Node } from '../../types/types';
+import { NodeType } from '@/types/enums';
+import { Algorithm, Coord, Grid } from '@/types/types';
+import { Node } from '@/types/types';
 
 interface AStarNode extends Node {
   visited: boolean;
