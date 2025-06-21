@@ -3,10 +3,12 @@ import { ActionIcon, Button, Flex, Group, Select, Text } from '@mantine/core';
 import { IconBrandGithubFilled } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 
+type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
+
 interface HeaderControlsProps {
   isVisualizing: boolean;
-  selectedAlgorithm: string;
-  onSelectAlgorithm: (id: string) => void;
+  selectedAlgorithm: PathfindingAlgorithmName;
+  onSelectAlgorithm: (id: PathfindingAlgorithmName) => void;
   onVisualize: () => void;
   onGenerateMaze: () => void;
   onResetGrid: () => void;
@@ -26,7 +28,9 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
     },
     ref,
   ) => {
-    const pathfindingOptions = Object.keys(PathfindingAlgorithmRegistry);
+    const pathfindingOptions = Object.keys(
+      PathfindingAlgorithmRegistry,
+    ) as PathfindingAlgorithmName[];
 
     return (
       <Flex ref={ref} align="center" gap="24" bg="blue" py={16} px={24} justify="space-between">
@@ -36,7 +40,7 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
           </Text>
           <Group>
             <Select
-              onChange={(value) => value && onSelectAlgorithm(value)}
+              onChange={(value) => value && onSelectAlgorithm(value as PathfindingAlgorithmName)}
               disabled={isVisualizing}
               data={pathfindingOptions}
               value={selectedAlgorithm}

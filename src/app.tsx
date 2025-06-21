@@ -3,12 +3,14 @@ import { Grid } from '@/grid/components/grid';
 import { HeaderControls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
-import { PathfindingAlgorithmRegistry } from '@/algorithms/';
+import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useRef, useState } from 'react';
 import { CELL_SIZE_PX } from './constants';
 
 const theme = createTheme({});
+
+type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
 
 export const App = () => {
   const {
@@ -30,7 +32,8 @@ export const App = () => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const header = useRef<HTMLDivElement>(null);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState("Dijkstra's");
+  const [selectedAlgorithm, setSelectedAlgorithm] =
+    useState<PathfindingAlgorithmName>("Dijkstra's");
 
   useEffect(() => {
     const handleResize = () => {
@@ -59,21 +62,12 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowHeight, windowWidth, headerHeight]);
 
-  const onAlgorithmSelection = (algorithm: string) => {
+  const onAlgorithmSelection = (algorithm: PathfindingAlgorithmName) => {
     setSelectedAlgorithm(algorithm);
-    if (algorithm === "Dijkstra's") {
-      setAlgorithm(() => PathfindingAlgorithmRegistry["Dijkstra's"]);
-      return;
-    }
 
-    if (algorithm === 'A*') {
-      setAlgorithm(() => PathfindingAlgorithmRegistry['A*']);
-      return;
-    }
-
-    if (algorithm === 'DFS') {
-      setAlgorithm(() => PathfindingAlgorithmRegistry.DFS);
-      return;
+    const algoFn = PathfindingAlgorithmRegistry[algorithm];
+    if (algoFn) {
+      setAlgorithm(() => algoFn);
     }
   };
 
