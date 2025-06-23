@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import { Node } from '@/types/types';
+import { Coord, Node } from '@/types/types';
 import { NodeType } from '@/types/enums';
 import { IconMoodHappyFilled, IconHomeFilled } from '@tabler/icons-react';
 import { Flex, useMantineTheme } from '@mantine/core';
@@ -9,22 +9,23 @@ import { incrementGridCellRenders } from '@/utils/render-counter';
 
 interface GridCellProps {
   node: Node;
-  onBlankNodeClicked: (selectedNode: Node) => void;
-  onMouseOver: (selectedNode: Node) => void;
-  onSetTargetNode: (selectedNode: Node) => void;
-  onSetSourceNode: (selectedNode: Node) => void;
+  onBlankNodeClicked: (coord: Coord) => void;
+  onMouseOver: (coord: Coord) => void;
+  onSetTargetNode: (coord: Coord) => void;
+  onSetSourceNode: (coord: Coord) => void;
   isVisualizing: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = memo(
   ({ node, onBlankNodeClicked, onMouseOver, onSetTargetNode, onSetSourceNode, isVisualizing }) => {
     const theme = useMantineTheme();
+    const coord = { x: node.x, y: node.y };
 
     incrementGridCellRenders();
 
     const handleOnMouseDown = () => {
       if (node.type === NodeType.BLANK) {
-        onBlankNodeClicked(node);
+        onBlankNodeClicked(coord);
       }
     };
 
@@ -43,16 +44,16 @@ export const GridCell: React.FC<GridCellProps> = memo(
       event.preventDefault();
       const data = event.dataTransfer.getData('text');
       if (data === 'SOURCE') {
-        onSetSourceNode(node);
+        onSetSourceNode(coord);
       } else if (data === 'TARGET') {
-        onSetTargetNode(node);
+        onSetTargetNode(coord);
       }
     };
 
     return (
       <Cell
         $nodeType={node.type}
-        onMouseOver={() => onMouseOver(node)}
+        onMouseOver={() => onMouseOver(coord)}
         onMouseDown={handleOnMouseDown}
         draggable={
           !isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)

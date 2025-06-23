@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import { GridCell } from './grid-cell';
-import { useEffect, useState } from 'react';
-import { Coord, Grid as GridType, Node } from '@/types/types';
+import { useCallback, useEffect, useState } from 'react';
+import { Coord, Grid as GridType } from '@/types/types';
 
 interface GridProps {
   grid: GridType;
   isVisualizing: boolean;
-  onSetWall: (node: Node) => void;
+  onSetWall: (coord: Coord) => void;
   onSetSourceCoord: (coord: Coord) => void;
   onSetTargetCoord: (coord: Coord) => void;
   onResetVisualization: () => void;
@@ -38,6 +38,39 @@ export const Grid: React.FC<GridProps> = ({
     };
   }, [isMakingWalls]);
 
+  const handleMouseOver = useCallback(
+    (coord: Coord) => {
+      if (isMakingWalls) {
+        onSetWall(coord);
+      }
+    },
+    [isMakingWalls, onSetWall],
+  );
+
+  const handleBlankNodeClicked = useCallback(
+    (coord: Coord) => {
+      setIsMakingWalls(true);
+      onSetWall(coord);
+    },
+    [onSetWall],
+  );
+
+  const handleSetSourceNode = useCallback(
+    (coord: Coord) => {
+      onSetSourceCoord(coord);
+      onResetVisualization();
+    },
+    [onSetSourceCoord, onResetVisualization],
+  );
+
+  const handleSetTargetNode = useCallback(
+    (coord: Coord) => {
+      onSetTargetCoord(coord);
+      onResetVisualization();
+    },
+    [onSetTargetCoord, onResetVisualization],
+  );
+
   return (
     <Table>
       <tbody>
@@ -47,23 +80,10 @@ export const Grid: React.FC<GridProps> = ({
               <GridCell
                 key={`${colIdx} ${rowIdx}`}
                 node={node}
-                onMouseOver={(node) => {
-                  if (isMakingWalls) {
-                    onSetWall(node);
-                  }
-                }}
-                onBlankNodeClicked={(node) => {
-                  setIsMakingWalls(true);
-                  onSetWall(node);
-                }}
-                onSetSourceNode={(node) => {
-                  onSetSourceCoord({ x: node.x, y: node.y });
-                  onResetVisualization();
-                }}
-                onSetTargetNode={(node) => {
-                  onSetTargetCoord({ x: node.x, y: node.y });
-                  onResetVisualization();
-                }}
+                onMouseOver={handleMouseOver}
+                onBlankNodeClicked={handleBlankNodeClicked}
+                onSetSourceNode={handleSetSourceNode}
+                onSetTargetNode={handleSetTargetNode}
                 isVisualizing={isVisualizing}
               />
             ))}
