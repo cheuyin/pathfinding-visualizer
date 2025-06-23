@@ -1,7 +1,8 @@
 import { forwardRef } from 'react';
-import { ActionIcon, Button, Flex, Group, Select, Text } from '@mantine/core';
-import { IconBrandGithubFilled } from '@tabler/icons-react';
+import { Select, Button, Flex, Text, Group, ActionIcon } from '@mantine/core';
+import { IconPlayerPlayFilled, IconReload, IconBrandGithubFilled } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
+import { logTotalGridCellRenders, resetTotalGridCellRenders } from '@/utils/render-counter';
 
 type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
 
@@ -46,8 +47,14 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
               value={selectedAlgorithm}
               allowDeselect={false}
             />
-            <Button variant="outline" color="white" onClick={onVisualize} disabled={isVisualizing}>
-              Visualize!
+            <Button
+              color="white"
+              variant="outline"
+              onClick={onVisualize}
+              disabled={isVisualizing}
+              leftSection={<IconPlayerPlayFilled size={14} />}
+            >
+              Visualize
             </Button>
             <Button
               variant="outline"
@@ -61,13 +68,16 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
               Reset Grid
             </Button>
             <Button
-              variant="outline"
               color="white"
+              variant="outline"
               onClick={onResetVisualization}
               disabled={isVisualizing}
+              leftSection={<IconReload size={14} />}
             >
               Reset Visualization
             </Button>
+            <Button onClick={logTotalGridCellRenders}>Log Renders</Button>
+            <Button onClick={resetTotalGridCellRenders}>Reset Renders</Button>
           </Group>
         </Flex>
         <ActionIcon
