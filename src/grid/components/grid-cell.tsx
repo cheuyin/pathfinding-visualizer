@@ -4,6 +4,7 @@ import { NodeType } from '@/types/enums';
 import { IconMoodHappyFilled, IconHomeFilled } from '@tabler/icons-react';
 import { Flex, useMantineTheme } from '@mantine/core';
 import { CELL_SIZE_PX } from '@/constants';
+import { incrementGridCellRenders } from '@/utils/render-counter';
 
 interface GridCellProps {
   node: Node;
@@ -22,6 +23,7 @@ export const GridCell: React.FC<GridCellProps> = ({
   onSetSourceNode,
   isVisualizing,
 }) => {
+  incrementGridCellRenders();
   const theme = useMantineTheme();
 
   const handleOnMouseDown = () => {
