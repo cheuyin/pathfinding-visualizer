@@ -33,9 +33,13 @@ export const createGridCopyWithNoPath = (grid: Grid): Grid =>
     }),
   );
 
-// Shallow-clone grid and override a single node.
+// Optimized: Only clone the changed row, not the whole grid
 export const replaceNodeInGrid = (grid: Grid, node: Node): Grid => {
-  const cloned = grid.map((r) => [...r]);
-  cloned[node.y][node.x] = node;
-  return cloned;
+  const rowIdx = node.y;
+  const colIdx = node.x;
+  // Only clone the row that changes
+  const newRow = [...grid[rowIdx]];
+  newRow[colIdx] = node;
+  // All other rows keep their reference
+  return grid.map((row, idx) => (idx === rowIdx ? newRow : row));
 };
