@@ -7,6 +7,7 @@ import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useRef, useState } from 'react';
 import { CELL_SIZE_PX } from './constants';
+import { FPSCounter } from '@/utils/fps-counter';
 
 const theme = createTheme({});
 
@@ -73,6 +74,7 @@ export const App = () => {
 
   return (
     <MantineProvider theme={theme}>
+      <FPSCounter />
       <Stack h={windowHeight} gap={0}>
         <HeaderControls
           ref={header}
