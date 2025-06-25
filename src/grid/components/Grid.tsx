@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { GridCell } from './grid-cell';
 import { useCallback, useEffect, useState } from 'react';
 import { Coord, Grid as GridType } from '@/types/types';
+import { NodeType } from '@/types/enums';
 
 interface GridProps {
   grid: GridType;
@@ -84,7 +85,9 @@ export const Grid: React.FC<GridProps> = ({
                 onBlankNodeClicked={handleBlankNodeClicked}
                 onSetSourceNode={handleSetSourceNode}
                 onSetTargetNode={handleSetTargetNode}
-                isVisualizing={isVisualizing}
+                isDraggable={
+                  !isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)
+                }
               />
             ))}
           </tr>

@@ -13,11 +13,11 @@ interface GridCellProps {
   onMouseOver: (coord: Coord) => void;
   onSetTargetNode: (coord: Coord) => void;
   onSetSourceNode: (coord: Coord) => void;
-  isVisualizing: boolean;
+  isDraggable: boolean;
 }
 
 export const GridCell: React.FC<GridCellProps> = memo(
-  ({ node, onBlankNodeClicked, onMouseOver, onSetTargetNode, onSetSourceNode, isVisualizing }) => {
+  ({ node, onBlankNodeClicked, onMouseOver, onSetTargetNode, onSetSourceNode, isDraggable }) => {
     const theme = useMantineTheme();
     const coord = { x: node.x, y: node.y };
 
@@ -55,9 +55,7 @@ export const GridCell: React.FC<GridCellProps> = memo(
         $nodeType={node.type}
         onMouseOver={() => onMouseOver(coord)}
         onMouseDown={handleOnMouseDown}
-        draggable={
-          !isVisualizing && (node.type === NodeType.SOURCE || node.type === NodeType.TARGET)
-        }
+        draggable={isDraggable}
         onDragStart={handleOnDragStart}
         onDragOver={handleOnDragOver}
         onDrop={handleOnDrop}
@@ -74,12 +72,12 @@ export const GridCell: React.FC<GridCellProps> = memo(
     );
   },
   (prevProps, nextProps) => {
-    // Only re-render if the node or isVisualizing props actually changed
+    // Only re-render if the node or isDraggable props actually changed
     return (
       prevProps.node.type === nextProps.node.type &&
       prevProps.node.x === nextProps.node.x &&
       prevProps.node.y === nextProps.node.y &&
-      prevProps.isVisualizing === nextProps.isVisualizing
+      prevProps.isDraggable === nextProps.isDraggable
     );
   },
 );
