@@ -73,6 +73,15 @@ export const GridCell: React.FC<GridCellProps> = memo(
       </Cell>
     );
   },
+  (prevProps, nextProps) => {
+    // Only re-render if the node or isVisualizing props actually changed
+    return (
+      prevProps.node.type === nextProps.node.type &&
+      prevProps.node.x === nextProps.node.x &&
+      prevProps.node.y === nextProps.node.y &&
+      prevProps.isVisualizing === nextProps.isVisualizing
+    );
+  },
 );
 
 const Cell = styled.td<{
