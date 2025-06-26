@@ -1,78 +1,56 @@
-## Canvas 2 D Refactor — “60 FPS Now” Edition
+Based on my analysis, here's a focused plan to migrate from React state-based animation to HTML Canvas for 60 FPS performance:
 
-### 0. North Star
+Current Bottlenecks
 
-**Ship a canvas grid that holds 60 FPS on a 100 × 100 board within one week—no React re-renders during animation.**
-Extra eye-candy and engine abstractions wait until fps ≥ 55 on stress-test builds.
+- 7 FPS due to massive React re-renders (thousands of <td> elements)
+- setTimeout-based sequential animation with 2ms delays
+- DOM-heavy HTML table structure
+- Immutable state updates creating object reference churn
 
----
+Core Migration Strategy
 
-### 1. Data + Logic
+Phase 1: Data Structure Transformation
+1. Replace Node[][] with Uint8Array - 8x memory reduction, cache-friendly
+2. Convert node types to numeric constants - Enable bitwise operations
+3. Maintain coordinate-based API - Minimal disruption to algorithms
 
-| Step | What                                                                                      | Why                                 |
-| ---- | ----------------------------------------------------------------------------------------- | ----------------------------------- |
-| 1.1  | **`GridData` = `Uint8Array`** (`0 = empty`, `1 = wall`, `2 = visited`, `3 = path`).       | Zero GC, cache-friendly, tiny.      |
-| 1.2  | **Path-solver → Web Worker**; posts a `Uint32Array` index list for “visited” then “path”. | Keeps main thread free for drawing. |
-| 1.3  | **Animation state = two ring buffers** of `[index, startTime]` for visited/path.          | No per-cell objects.                |
+Phase 2: Canvas Rendering System
+4. Single <canvas> element replaces HTML table
+5. Direct pixel manipulation for 25×25px cells
+6. requestAnimationFrame animation loop - 60 FPS target
+7. Batch rendering updates - Paint all changes per frame
 
----
+Phase 3: Event System
+8. Canvas pointer event handling - Convert mouse coords to grid coords
+9. Preserve drag-and-drop behavior - Source/target positioning
+10. Wall creation with mouse drag - Maintain current UX
 
-### 2. Rendering
+Key Technical Changes
 
-| Step | What                                                                                                                                                                                           | Why                                                        |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| 2.1  | Mount **one `<canvas>`** inside your existing `<Grid>` React component.                                                                                                                        | Leaves React for UI chrome only.                           |
-| 2.2  | **Hi-DPI safe:** `ResizeObserver` → recalc DPR, `canvas.width/height`, `ctx.scale`.                                                                                                            | Handles window/device zoom.                                |
-| 2.3  | **`drawFrame(now)`** (called via `requestAnimationFrame`):<br> • Paint whole grid each frame ( ≤ 10 k `fillRect` @100×100 )<br> • Read colors from `GridData` + easing on active ring buffers. | Simpler than dirty-rects; still well under 1 ms on laptop. |
-| 2.4  | **Tiny dev FPS counter** every 60 frames.                                                                                                                                                      | Fail-fast on regressions.                                  |
+Data Structure:
+// From: Node[][] (objects with {x, y, type})
+// To: Uint8Array (flat array with enum values)
 
----
+Animation System:
+// From: setTimeout sequences (2ms delays)
+// To: requestAnimationFrame with frame-based updates
 
-### 3. Input
+Rendering:
+// From: React re-renders of 1000+ components
+// To: Canvas.fillRect() calls in single frame
 
-| Step | What                                                                        | Why                                   |
-| ---- | --------------------------------------------------------------------------- | ------------------------------------- |
-| 3.1  | **Pointer events → grid coords** via math (`(clientX-rect.left)/cellSize`). | Single path for mouse, touch, stylus. |
-| 3.2  | Drag to place walls; drag-drop start/target.                                | Feature parity.                       |
+Preserved Elements
 
----
+- All pathfinding algorithms (with data adapter)
+- Current state management in use-visualizer.ts
+- Grid sizing and window responsiveness
+- UI controls and algorithm selection
 
-### 4. Migration Hooks
+Expected Performance
 
-| Step | What                                                                                                              | Why                             |
-| ---- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| 4.1  | **`ReactCanvasAdapter`** — thin wrapper that translates old Redux/Context grid actions into `GridData` mutations. | Lets old controls keep working. |
-| 4.2  | Keep old DOM grid behind a feature flag for one sprint.                                                           | Rollback safety.                |
+- 60 FPS animation (vs current 7 FPS)
+- 8x less memory usage via Uint8Array
+- Elimination of React render overhead
+- Smoother user interactions
 
----
-
-### 5. Hard Stop Scope
-
-✅ Draw grid, walls, visited nodes, final path
-✅ 60 FPS on 100 × 100 stress test
-❌ No glow/ripple/zoom until baseline hit
-❌ No custom “animation engine” abstraction until a real requirement emerges
-
----
-
-### 6. Rough Timeline
-
-| Day | Deliverable                                                  |
-| --- | ------------------------------------------------------------ |
-| 1   | Typed-array `GridData`, canvas mount, ResizeObserver.        |
-| 2   | Basic draw loop hitting 60 FPS on static grid.               |
-| 3   | Pointer events for wall toggles; adapter wiring.             |
-| 4   | Path-solver offloaded to worker; animate visited & path.     |
-| 5   | Refactor, clean-up, FPS validation on 100 × 100 & 200 × 200. |
-
----
-
-### 7. Future-Proof Escape Hatches
-
-* > 100 × 100 or per-cell alpha ➜ swap draw loop for WebGL instancing.
-* Need fancy FX ➜ add optional shader path behind feature flag.
-* Heavy canvas math ➜ move draw loop to `OffscreenCanvas` in worker.
-
----
-
-**Go build.**
+The migration maintains current functionality while achieving your 60 FPS target through focused Canvas rendering without React re-render bottlenecks.
