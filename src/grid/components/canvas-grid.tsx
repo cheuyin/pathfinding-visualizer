@@ -16,8 +16,8 @@ interface CanvasGridProps {
 const STATIC_NODE_COLORS = {
   [NodeType.BLANK]: [255, 255, 255] as [number, number, number],
   [NodeType.WALL]: [45, 55, 72] as [number, number, number],
-  [NodeType.SOURCE]: [72, 187, 120] as [number, number, number],
-  [NodeType.TARGET]: [237, 137, 54] as [number, number, number],
+  [NodeType.SOURCE]: [255, 255, 255] as [number, number, number],
+  [NodeType.TARGET]: [255, 255, 255] as [number, number, number],
   [NodeType.VISITED]: [0, 190, 218] as [number, number, number], // Final visited color
   [NodeType.PATH]: [255, 255, 0] as [number, number, number], // Yellow for path
 };
