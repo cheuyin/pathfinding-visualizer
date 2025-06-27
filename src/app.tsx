@@ -1,11 +1,11 @@
 import '@mantine/core/styles.css';
 import { CanvasGrid } from '@/grid/components/canvas-grid';
-import { HeaderControls } from '@/ui';
+import { Header, Controls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider } from '@mantine/core';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 import { useVisualizer } from './hooks/use-visualizer';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CELL_SIZE_PX } from './constants';
 import { FPSCounter } from '@/utils/fps-counter';
 
@@ -29,27 +29,32 @@ export const App = () => {
     setNumGridRows,
   } = useVisualizer();
 
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const headerRef = useRef<HTMLDivElement>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] =
     useState<PathfindingAlgorithmName>("Dijkstra's");
 
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+
+  // Effect to handle window resize and calculate grid size
   useEffect(() => {
-    const handleResize = () => {
-      if (headerRef.current) {
-        setHeaderHeight(headerRef.current.offsetHeight);
+    const calculateGridSize = () => {
+      if (canvasContainerRef.current) {
+        const rect = canvasContainerRef.current.getBoundingClientRect();
+        const numCols = Math.floor(rect.width / CELL_SIZE_PX);
+        const numRows = Math.floor(rect.height / CELL_SIZE_PX);
+        setNumGridCols(numCols);
+        setNumGridRows(numRows);
       }
-      const numCols = Math.floor(window.innerWidth / CELL_SIZE_PX);
-      const numRows = Math.floor((window.innerHeight - (headerRef.current?.offsetHeight ?? 0)) / CELL_SIZE_PX);
-      setNumGridCols(numCols);
-      setNumGridRows(numRows);
     };
 
-    handleResize();
+    const resizeObserver = new ResizeObserver(calculateGridSize);
+    if (canvasContainerRef.current) {
+      resizeObserver.observe(canvasContainerRef.current);
+    }
 
-    window.addEventListener('resize', handleResize);
+    calculateGridSize(); // Initial calculation
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
     };
   }, [setNumGridCols, setNumGridRows]);
 
@@ -64,25 +69,27 @@ export const App = () => {
 
   return (
     <MantineProvider theme={theme}>
-      <FPSCounter />
-      <HeaderControls
-        ref={headerRef}
-        isVisualizing={isVisualizing}
-        selectedAlgorithm={selectedAlgorithm}
-        onSelectAlgorithm={onAlgorithmSelection}
-        onVisualize={animate}
-        onGenerateMaze={generateMaze}
-        onResetGrid={resetGrid}
-        onResetVisualization={resetVisualization}
-      />
-      <div style={{ paddingTop: headerHeight }}>
-        <CanvasGrid
-          grid={grid}
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <FPSCounter />
+        <Header />
+        <div ref={canvasContainerRef} style={{ flex: 1, overflow: 'hidden' }}>
+          <CanvasGrid
+            grid={grid}
+            isVisualizing={isVisualizing}
+            onResetVisualization={resetVisualization}
+            onSetSourceCoord={updateSource}
+            onSetTargetCoord={updateTarget}
+            onSetWall={setWall}
+          />
+        </div>
+        <Controls
           isVisualizing={isVisualizing}
+          selectedAlgorithm={selectedAlgorithm}
+          onSelectAlgorithm={onAlgorithmSelection}
+          onVisualize={animate}
+          onGenerateMaze={generateMaze}
+          onResetGrid={resetGrid}
           onResetVisualization={resetVisualization}
-          onSetSourceCoord={updateSource}
-          onSetTargetCoord={updateTarget}
-          onSetWall={setWall}
         />
       </div>
     </MantineProvider>

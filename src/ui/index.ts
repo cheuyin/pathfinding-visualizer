@@ -1,1 +1,2 @@
-export * from './header-controls/header-controls';
+export * from './header/header';
+export * from './controls/controls';
