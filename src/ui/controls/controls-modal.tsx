@@ -41,14 +41,14 @@ export const ControlsModal: React.FC<ControlsModalProps> = ({
           value={selectedAlgorithm}
           allowDeselect={false}
         />
-        <Button onClick={onGenerateMaze} disabled={isVisualizing}>
+        <Button onClick={() => { onGenerateMaze(); onClose(); }} disabled={isVisualizing}>
           Generate Maze
         </Button>
-        <Button onClick={onResetGrid} disabled={isVisualizing}>
+        <Button onClick={() => { onResetGrid(); onClose(); }} disabled={isVisualizing}>
           Reset Grid
         </Button>
         <Button
-          onClick={onResetVisualization}
+          onClick={() => { onResetVisualization(); onClose(); }}
           disabled={isVisualizing}
           leftSection={<IconReload size={14} />}
         >
