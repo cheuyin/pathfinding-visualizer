@@ -1,6 +1,5 @@
 import { NodeType } from '@/types/enums';
 import { Coord } from '@/types/types';
-import { CELL_SIZE_PX } from '@/constants';
 
 export interface AnimationState {
   coord: Coord;
@@ -33,7 +32,7 @@ export class CanvasAnimationSystem {
   addAnimation(coord: Coord, nodeType: NodeType): void {
     const key = `${coord.x}-${coord.y}`;
     const duration = this.getAnimationDuration(nodeType);
-    
+
     this.animations.set(key, {
       coord,
       nodeType,
@@ -59,10 +58,14 @@ export class CanvasAnimationSystem {
 
   private getAnimationDuration(nodeType: NodeType): number {
     switch (nodeType) {
-      case NodeType.VISITED: return 2000; // 2s
-      case NodeType.PATH: return 1000;    // 1s  
-      case NodeType.WALL: return 250;     // 0.25s
-      default: return 0;
+      case NodeType.VISITED:
+        return 2000; // 2s
+      case NodeType.PATH:
+        return 1000; // 1s
+      case NodeType.WALL:
+        return 250; // 0.25s
+      default:
+        return 0;
     }
   }
 
@@ -86,7 +89,7 @@ export class CanvasAnimationSystem {
     }
 
     // Remove completed animations
-    completedAnimations.forEach(key => {
+    completedAnimations.forEach((key) => {
       this.animations.delete(key);
     });
 
@@ -115,7 +118,7 @@ export const easeIn = (t: number): number => {
 export const interpolateColor = (
   color1: [number, number, number],
   color2: [number, number, number],
-  t: number
+  t: number,
 ): [number, number, number] => {
   return [
     Math.round(color1[0] + (color2[0] - color1[0]) * t),

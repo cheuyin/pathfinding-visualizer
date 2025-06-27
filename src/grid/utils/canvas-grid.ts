@@ -1,5 +1,5 @@
 import { NodeType } from '../../types/enums';
-import { CanvasGrid, GridDimensions, Coord, Grid, Node } from '../../types/types';
+import { CanvasGrid, GridDimensions, Coord, Grid } from '../../types/types';
 
 export const createCanvasGrid = (width: number, height: number): CanvasGrid => {
   return new Uint8Array(width * height).fill(NodeType.BLANK);
@@ -33,12 +33,9 @@ export const setCanvasCell = (
   grid[coordToIndex(coord, dimensions)] = nodeType;
 };
 
-export const convertGridToCanvas = (
-  grid: Grid,
-  dimensions: GridDimensions,
-): CanvasGrid => {
+export const convertGridToCanvas = (grid: Grid, dimensions: GridDimensions): CanvasGrid => {
   const canvasGrid = createCanvasGrid(dimensions.width, dimensions.height);
-  
+
   for (let y = 0; y < dimensions.height; y++) {
     for (let x = 0; x < dimensions.width; x++) {
       if (grid[y] && grid[y][x]) {
@@ -46,16 +43,13 @@ export const convertGridToCanvas = (
       }
     }
   }
-  
+
   return canvasGrid;
 };
 
-export const convertCanvasToGrid = (
-  canvasGrid: CanvasGrid,
-  dimensions: GridDimensions,
-): Grid => {
+export const convertCanvasToGrid = (canvasGrid: CanvasGrid, dimensions: GridDimensions): Grid => {
   const grid: Grid = [];
-  
+
   for (let y = 0; y < dimensions.height; y++) {
     grid[y] = [];
     for (let x = 0; x < dimensions.width; x++) {
@@ -66,7 +60,7 @@ export const convertCanvasToGrid = (
       };
     }
   }
-  
+
   return grid;
 };
 
@@ -74,10 +68,7 @@ export const copyCanvasGrid = (grid: CanvasGrid): CanvasGrid => {
   return new Uint8Array(grid);
 };
 
-export const clearCanvasVisualization = (
-  grid: CanvasGrid,
-  dimensions: GridDimensions,
-): void => {
+export const clearCanvasVisualization = (grid: CanvasGrid): void => {
   for (let i = 0; i < grid.length; i++) {
     if (grid[i] === NodeType.VISITED || grid[i] === NodeType.PATH) {
       grid[i] = NodeType.BLANK;

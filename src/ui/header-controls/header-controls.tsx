@@ -2,7 +2,6 @@ import { forwardRef } from 'react';
 import { Select, Button, Flex, Text, Group, ActionIcon } from '@mantine/core';
 import { IconPlayerPlayFilled, IconReload, IconBrandGithubFilled } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
-import { logTotalGridCellRenders, resetTotalGridCellRenders } from '@/utils/render-counter';
 
 type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
 
@@ -76,8 +75,6 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
             >
               Reset Visualization
             </Button>
-            <Button onClick={logTotalGridCellRenders}>Log Renders</Button>
-            <Button onClick={resetTotalGridCellRenders}>Reset Renders</Button>
           </Group>
         </Flex>
         <ActionIcon
