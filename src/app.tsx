@@ -2,7 +2,7 @@ import '@mantine/core/styles.css';
 import { CanvasGrid } from '@/grid/components/canvas-grid';
 import { HeaderControls } from '@/ui';
 import './app.css';
-import { createTheme, MantineProvider, Stack } from '@mantine/core';
+import { createTheme, MantineProvider } from '@mantine/core';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useRef, useState } from 'react';
@@ -30,38 +30,28 @@ export const App = () => {
   } = useVisualizer();
 
   const [headerHeight, setHeaderHeight] = useState(0);
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const header = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] =
     useState<PathfindingAlgorithmName>("Dijkstra's");
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowHeight(window.innerHeight);
-      setWindowWidth(window.innerWidth);
-      if (header.current) {
-        setHeaderHeight(header.current.offsetHeight);
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
       }
+      const numCols = Math.floor(window.innerWidth / CELL_SIZE_PX);
+      const numRows = Math.floor((window.innerHeight - (headerRef.current?.offsetHeight ?? 0)) / CELL_SIZE_PX);
+      setNumGridCols(numCols);
+      setNumGridRows(numRows);
     };
 
-    if (header.current) {
-      setHeaderHeight(header.current.offsetHeight);
-    }
+    handleResize();
 
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
-
-  useEffect(() => {
-    const numCols = Math.floor(windowWidth / CELL_SIZE_PX);
-    const numRows = Math.floor((windowHeight - headerHeight) / CELL_SIZE_PX);
-    setNumGridCols(numCols);
-    setNumGridRows(numRows);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowHeight, windowWidth, headerHeight]);
+  }, [setNumGridCols, setNumGridRows]);
 
   const onAlgorithmSelection = (algorithm: PathfindingAlgorithmName) => {
     setSelectedAlgorithm(algorithm);
@@ -75,17 +65,17 @@ export const App = () => {
   return (
     <MantineProvider theme={theme}>
       <FPSCounter />
-      <Stack h={windowHeight} gap={0}>
-        <HeaderControls
-          ref={header}
-          isVisualizing={isVisualizing}
-          selectedAlgorithm={selectedAlgorithm}
-          onSelectAlgorithm={onAlgorithmSelection}
-          onVisualize={animate}
-          onGenerateMaze={generateMaze}
-          onResetGrid={resetGrid}
-          onResetVisualization={resetVisualization}
-        />
+      <HeaderControls
+        ref={headerRef}
+        isVisualizing={isVisualizing}
+        selectedAlgorithm={selectedAlgorithm}
+        onSelectAlgorithm={onAlgorithmSelection}
+        onVisualize={animate}
+        onGenerateMaze={generateMaze}
+        onResetGrid={resetGrid}
+        onResetVisualization={resetVisualization}
+      />
+      <div style={{ paddingTop: headerHeight }}>
         <CanvasGrid
           grid={grid}
           isVisualizing={isVisualizing}
@@ -94,7 +84,7 @@ export const App = () => {
           onSetTargetCoord={updateTarget}
           onSetWall={setWall}
         />
-      </Stack>
+      </div>
     </MantineProvider>
   );
 };

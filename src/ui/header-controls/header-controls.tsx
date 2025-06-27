@@ -1,7 +1,9 @@
-import { forwardRef } from 'react';
-import { Select, Button, Flex, Text, Group, ActionIcon } from '@mantine/core';
-import { IconPlayerPlayFilled, IconReload, IconBrandGithubFilled } from '@tabler/icons-react';
+import { forwardRef, useState } from 'react';
+import { Text, Group, ActionIcon, Affix, Button, Image } from '@mantine/core';
+import { IconBrandGithubFilled, IconSettings } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
+import { ControlsModal } from './controls-modal';
+import favicon from '/favicon.png';
 
 type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
 
@@ -28,64 +30,70 @@ export const HeaderControls = forwardRef<HTMLDivElement, HeaderControlsProps>(
     },
     ref,
   ) => {
-    const pathfindingOptions = Object.keys(
-      PathfindingAlgorithmRegistry,
-    ) as PathfindingAlgorithmName[];
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
-      <Flex ref={ref} align="center" gap="24" bg="blue" py={16} px={24} justify="space-between">
-        <Flex align="center" gap={24}>
-          <Text size="xl" fw={800} c="white">
-            Pathfinding Visualizer
-          </Text>
-          <Group>
-            <Select
-              onChange={(value) => value && onSelectAlgorithm(value as PathfindingAlgorithmName)}
-              disabled={isVisualizing}
-              data={pathfindingOptions}
-              value={selectedAlgorithm}
-              allowDeselect={false}
-            />
-            <Button
-              color="white"
-              variant="outline"
-              onClick={onVisualize}
-              disabled={isVisualizing}
-              leftSection={<IconPlayerPlayFilled size={14} />}
-            >
-              Visualize
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onGenerateMaze}
-              disabled={isVisualizing}
-              color="white"
-            >
-              Generate Maze
-            </Button>
-            <Button variant="outline" color="white" onClick={onResetGrid} disabled={isVisualizing}>
-              Reset Grid
-            </Button>
-            <Button
-              color="white"
-              variant="outline"
-              onClick={onResetVisualization}
-              disabled={isVisualizing}
-              leftSection={<IconReload size={14} />}
-            >
-              Reset Visualization
-            </Button>
-          </Group>
-        </Flex>
-        <ActionIcon
-          component="a"
-          href="https://github.com/cheuyin/pathfinding-visualizer"
-          target="_blank"
-          rel="noopener noreferrer"
+      <>
+        <div
+          ref={ref}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1,
+            background: '#228be6', // Mantine default blue
+          }}
         >
-          <IconBrandGithubFilled />
-        </ActionIcon>
-      </Flex>
+          <Group justify="space-between" align="center" style={{ padding: '12px 24px' }}>
+            <Group align="center">
+              <Image
+                src={favicon}
+                alt="Logo"
+                width={24}
+                height={24}
+                style={{
+                  filter: 'grayscale(1) brightness(1.5) contrast(1.2)',
+                }}
+              />
+              <Text size="xl" fw={800} c="white">
+                Pathfinding Visualizer
+              </Text>
+            </Group>
+            <ActionIcon
+              component="a"
+              href="https://github.com/cheuyin/pathfinding-visualizer"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="transparent"
+              c="white"
+            >
+              <IconBrandGithubFilled />
+            </ActionIcon>
+          </Group>
+        </div>
+
+        <Affix position={{ bottom: 20, right: 20 }}>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            leftSection={<IconSettings size={14} />}
+          >
+            Controls
+          </Button>
+        </Affix>
+
+        <ControlsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          isVisualizing={isVisualizing}
+          selectedAlgorithm={selectedAlgorithm}
+          onSelectAlgorithm={onSelectAlgorithm}
+          onVisualize={onVisualize}
+          onGenerateMaze={onGenerateMaze}
+          onResetGrid={onResetGrid}
+          onResetVisualization={onResetVisualization}
+        />
+      </>
     );
   },
 );
