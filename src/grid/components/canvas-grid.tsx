@@ -3,6 +3,7 @@ import { NodeType } from '@/types/enums';
 import { Coord, Grid as GridType } from '@/types/types';
 import { CELL_SIZE_PX } from '@/constants';
 import { CanvasAnimationSystem, getAnimationProps, rgbToString } from '@/animation/canvas-animations';
+import { FPSCounter } from '@/utils/fps-counter';
 
 interface CanvasGridProps {
   grid: GridType;
@@ -394,20 +395,31 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      onMouseDown={handleInteractionStart}
-      onMouseMove={handleInteractionMove}
-      onMouseUp={handleInteractionEnd}
-      onTouchStart={handleInteractionStart}
-      onTouchMove={handleInteractionMove}
-      onTouchEnd={handleInteractionEnd}
-      style={{
-        display: 'block',
-        cursor: isDragging ? 'grabbing' : (isMakingWalls ? 'crosshair' : 'default'),
-        border: '1px solid #e2e8f0',
-        touchAction: 'none',
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <canvas
+        ref={canvasRef}
+        onMouseDown={handleInteractionStart}
+        onMouseMove={handleInteractionMove}
+        onMouseUp={handleInteractionEnd}
+        onTouchStart={handleInteractionStart}
+        onTouchMove={handleInteractionMove}
+        onTouchEnd={handleInteractionEnd}
+        style={{
+          display: 'block',
+          cursor: isDragging ? 'grabbing' : (isMakingWalls ? 'crosshair' : 'default'),
+          border: '1px solid #e2e8f0',
+          touchAction: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+        }}
+      >
+        <FPSCounter />
+      </div>
+    </div>
   );
 };

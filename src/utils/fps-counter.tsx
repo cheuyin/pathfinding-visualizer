@@ -25,20 +25,18 @@ export function FPSCounter() {
   }, []);
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 8,
-      left: 8,
-      background: 'rgba(0,0,0,0.7)',
-      color: '#fff',
-      padding: '2px 8px',
-      borderRadius: 4,
-      fontSize: 12,
-      zIndex: 9999,
-      pointerEvents: 'none',
-      fontFamily: 'monospace',
-    }}>
-      FPS: {fps}
+    <div
+      style={{
+        fontSize: 12,
+        pointerEvents: 'none',
+        fontFamily: 'monospace',
+        background: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: '2px 8px',
+        borderRadius: 4,
+      }}
+    >
+      {fps} FPS
     </div>
   );
 }

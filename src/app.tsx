@@ -7,7 +7,6 @@ import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 import { useVisualizer } from './hooks/use-visualizer';
 import { useEffect, useState, useRef } from 'react';
 import { CELL_SIZE_PX } from './constants';
-import { FPSCounter } from '@/utils/fps-counter';
 
 const theme = createTheme({});
 
@@ -70,7 +69,6 @@ export const App = () => {
   return (
     <MantineProvider theme={theme}>
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <FPSCounter />
         <Header />
         <div ref={canvasContainerRef} style={{ flex: 1, overflow: 'hidden' }}>
           <CanvasGrid
