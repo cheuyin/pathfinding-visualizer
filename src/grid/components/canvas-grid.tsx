@@ -406,6 +406,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
         display: 'block',
         cursor: isDragging ? 'grabbing' : (isMakingWalls ? 'crosshair' : 'default'),
         border: '1px solid #e2e8f0',
+        touchAction: 'none',
       }}
     />
   );
