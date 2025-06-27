@@ -1,5 +1,5 @@
 import { Modal, Select, Button, Stack } from '@mantine/core';
-import { IconPlayerPlayFilled, IconReload } from '@tabler/icons-react';
+import { IconReload } from '@tabler/icons-react';
 import { PathfindingAlgorithmRegistry } from '@/algorithms/pathfinding';
 
 type PathfindingAlgorithmName = keyof typeof PathfindingAlgorithmRegistry;
@@ -21,7 +21,6 @@ export const ControlsModal: React.FC<ControlsModalProps> = ({
   isVisualizing,
   selectedAlgorithm,
   onSelectAlgorithm,
-  onVisualize,
   onGenerateMaze,
   onResetGrid,
   onResetVisualization,
@@ -41,14 +40,29 @@ export const ControlsModal: React.FC<ControlsModalProps> = ({
           value={selectedAlgorithm}
           allowDeselect={false}
         />
-        <Button onClick={() => { onGenerateMaze(); onClose(); }} disabled={isVisualizing}>
+        <Button
+          onClick={() => {
+            onGenerateMaze();
+            onClose();
+          }}
+          disabled={isVisualizing}
+        >
           Generate Maze
         </Button>
-        <Button onClick={() => { onResetGrid(); onClose(); }} disabled={isVisualizing}>
+        <Button
+          onClick={() => {
+            onResetGrid();
+            onClose();
+          }}
+          disabled={isVisualizing}
+        >
           Reset Grid
         </Button>
         <Button
-          onClick={() => { onResetVisualization(); onClose(); }}
+          onClick={() => {
+            onResetVisualization();
+            onClose();
+          }}
           disabled={isVisualizing}
           leftSection={<IconReload size={14} />}
         >
