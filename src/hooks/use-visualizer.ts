@@ -5,7 +5,12 @@ import { recursiveBacktracking } from '@/algorithms/maze/recursive-backtracking'
 import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-utils';
 import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
-import { AnimationSystem, createCombinedSequence, createMazeSequence, AnimationFrame } from '../animation/animation-system';
+import {
+  AnimationSystem,
+  createCombinedSequence,
+  createMazeSequence,
+  AnimationFrame,
+} from '../animation/animation-system';
 
 export const useVisualizer = () => {
   const [numGridCols, setNumGridCols] = useState<number | null>(null);
@@ -48,9 +53,14 @@ export const useVisualizer = () => {
     dispatchGrid({ type: 'SET_TARGET', coord });
   }, []);
 
+  const resetVisualization = useCallback(() => dispatchGrid({ type: 'CLEAR_VISUALIZATION' }), []);
+
   // ------ Algorithm Animation --------------------------------------------
   const animate = useCallback(() => {
     if (!sourceCoord || !targetCoord) return;
+
+    resetVisualization();
+
     setIsVisualizing(true);
 
     const workingGrid: GridType = createGridCopyWithNoPath(grid);
@@ -74,7 +84,7 @@ export const useVisualizer = () => {
     );
 
     animationSystemRef.current.start(sequence);
-  }, [sourceCoord, targetCoord, grid, algorithm]);
+  }, [resetVisualization, sourceCoord, targetCoord, grid, algorithm]);
 
   const resetGrid = useCallback(() => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
@@ -84,8 +94,6 @@ export const useVisualizer = () => {
     });
   }, [numGridCols, numGridRows, sourceCoord, targetCoord]);
 
-  const resetVisualization = useCallback(() => dispatchGrid({ type: 'CLEAR_VISUALIZATION' }), []);
-
   const generateMaze = useCallback(() => {
     if (!numGridCols || !numGridRows || !sourceCoord || !targetCoord) return;
     setIsVisualizing(true);
@@ -94,7 +102,7 @@ export const useVisualizer = () => {
     dispatchGrid({ type: 'RESET', grid: freshGrid });
 
     const walls = recursiveBacktracking(freshGrid, sourceCoord, targetCoord);
-    
+
     const handleFrameUpdate = (frame: AnimationFrame) => {
       dispatchGrid({ type: frame.action, coord: frame.coord });
     };
