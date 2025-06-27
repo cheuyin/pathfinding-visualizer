@@ -10,7 +10,6 @@ interface ControlsModalProps {
   isVisualizing: boolean;
   selectedAlgorithm: PathfindingAlgorithmName;
   onSelectAlgorithm: (id: PathfindingAlgorithmName) => void;
-  onVisualize: () => void;
   onGenerateMaze: () => void;
   onResetGrid: () => void;
   onResetVisualization: () => void;
@@ -42,13 +41,6 @@ export const ControlsModal: React.FC<ControlsModalProps> = ({
           value={selectedAlgorithm}
           allowDeselect={false}
         />
-        <Button
-          onClick={onVisualize}
-          disabled={isVisualizing}
-          leftSection={<IconPlayerPlayFilled size={14} />}
-        >
-          Visualize
-        </Button>
         <Button onClick={onGenerateMaze} disabled={isVisualizing}>
           Generate Maze
         </Button>
