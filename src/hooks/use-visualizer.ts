@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useState, useRef } from 'react';
 import { Coord, Grid as GridType } from '../types/types';
 import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
 import { Algorithm } from '../types/types';
@@ -7,6 +7,7 @@ import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-uti
 import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
 import { useCallback } from 'react';
+import { AnimationSystem, createCombinedSequence, createMazeSequence, AnimationFrame } from '../animation/animation-system';
 
 export const useVisualizer = () => {
   const [numGridCols, setNumGridCols] = useState<number | null>(null);
@@ -18,6 +19,9 @@ export const useVisualizer = () => {
 
   // Grid managed by reducer
   const [grid, dispatchGrid] = useReducer(gridReducer, [] as GridType);
+
+  // Animation system
+  const animationSystemRef = useRef<AnimationSystem>(new AnimationSystem());
 
   // ------ Initialization --------------------------------------------------
   useEffect(() => {
@@ -58,28 +62,24 @@ export const useVisualizer = () => {
     const workingGrid: GridType = createGridCopyWithNoPath(grid);
     const { visitedNodes, pathToTarget } = algorithm(workingGrid, sourceCoord, targetCoord);
 
-    // helper to mark nodes with a delay
-    const markWithDelay = (
-      coords: Coord[],
-      action: 'MARK_VISITED' | 'MARK_PATH',
-      delay: number,
-      onFinish: () => void,
-    ) => {
-      coords.forEach((c: Coord, idx: number) => {
-        setTimeout(() => {
-          dispatchGrid({ type: action, coord: c });
-          if (idx === coords.length - 1) onFinish();
-        }, delay * idx);
-      });
+    const handleFrameUpdate = (frame: AnimationFrame) => {
+      dispatchGrid({ type: frame.action, coord: frame.coord });
     };
 
-    markWithDelay(visitedNodes, 'MARK_VISITED', VISITED_NODE_DELAY_MS, () => {
-      if (pathToTarget.length === 0) {
-        setIsVisualizing(false);
-        return;
-      }
-      markWithDelay(pathToTarget, 'MARK_PATH', PATH_NODE_DELAY_MS, () => setIsVisualizing(false));
-    });
+    const handleComplete = () => {
+      setIsVisualizing(false);
+    };
+
+    const sequence = createCombinedSequence(
+      visitedNodes,
+      pathToTarget,
+      VISITED_NODE_DELAY_MS,
+      PATH_NODE_DELAY_MS,
+      handleFrameUpdate,
+      handleComplete,
+    );
+
+    animationSystemRef.current.start(sequence);
   }, [sourceCoord, targetCoord, grid, algorithm]);
 
   const resetGrid = useCallback(() => {
@@ -100,12 +100,23 @@ export const useVisualizer = () => {
     dispatchGrid({ type: 'RESET', grid: freshGrid });
 
     const walls = recursiveBacktracking(freshGrid, sourceCoord, targetCoord);
-    walls.forEach((c, idx) => {
-      setTimeout(() => {
-        dispatchGrid({ type: 'SET_WALL', coord: c });
-        if (idx === walls.length - 1) setIsVisualizing(false);
-      }, MAZE_WALL_DELAY_MS * idx);
-    });
+    
+    const handleFrameUpdate = (frame: AnimationFrame) => {
+      dispatchGrid({ type: frame.action, coord: frame.coord });
+    };
+
+    const handleComplete = () => {
+      setIsVisualizing(false);
+    };
+
+    const sequence = createMazeSequence(
+      walls,
+      MAZE_WALL_DELAY_MS,
+      handleFrameUpdate,
+      handleComplete,
+    );
+
+    animationSystemRef.current.start(sequence);
   }, [numGridCols, numGridRows, sourceCoord, targetCoord]);
 
   // -----------------------------------------------------------------------

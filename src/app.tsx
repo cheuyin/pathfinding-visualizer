@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { Grid } from '@/grid/components/grid';
+import { CanvasGrid } from '@/grid/components/canvas-grid';
 import { HeaderControls } from '@/ui';
 import './app.css';
 import { createTheme, MantineProvider, Stack } from '@mantine/core';
@@ -86,7 +86,7 @@ export const App = () => {
           onResetGrid={resetGrid}
           onResetVisualization={resetVisualization}
         />
-        <Grid
+        <CanvasGrid
           grid={grid}
           isVisualizing={isVisualizing}
           onResetVisualization={resetVisualization}
