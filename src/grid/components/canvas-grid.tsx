@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { NodeType } from '@/types/enums';
 import { Coord, Grid as GridType } from '@/types/types';
 import { CELL_SIZE_PX } from '@/constants';
+import { CanvasAnimationSystem, getAnimationProps, rgbToString } from '@/animation/canvas-animations';
 
 interface CanvasGridProps {
   grid: GridType;
@@ -12,13 +13,13 @@ interface CanvasGridProps {
   onResetVisualization: () => void;
 }
 
-const NODE_COLORS = {
-  [NodeType.BLANK]: '#ffffff',
-  [NodeType.WALL]: '#2d3748',
-  [NodeType.SOURCE]: '#48bb78',
-  [NodeType.TARGET]: '#ed8936',
-  [NodeType.VISITED]: '#bee3f8',
-  [NodeType.PATH]: '#fbb6ce',
+const STATIC_NODE_COLORS = {
+  [NodeType.BLANK]: [255, 255, 255] as [number, number, number],
+  [NodeType.WALL]: [45, 55, 72] as [number, number, number],
+  [NodeType.SOURCE]: [72, 187, 120] as [number, number, number],
+  [NodeType.TARGET]: [237, 137, 54] as [number, number, number],
+  [NodeType.VISITED]: [0, 190, 218] as [number, number, number], // Final visited color
+  [NodeType.PATH]: [255, 255, 0] as [number, number, number], // Yellow for path
 };
 
 export const CanvasGrid: React.FC<CanvasGridProps> = ({
@@ -30,11 +31,13 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
   onResetVisualization,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationSystemRef = useRef(new CanvasAnimationSystem());
   const [isMakingWalls, setIsMakingWalls] = useState(false);
   const [isDragging, setIsDragging] = useState<{
     type: NodeType.SOURCE | NodeType.TARGET;
     coord: Coord;
   } | null>(null);
+  const lastGridRef = useRef<GridType>([]);
 
   const getGridDimensions = () => {
     if (grid.length === 0) return { width: 0, height: 0 };
@@ -51,17 +54,136 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     y: Math.floor(y / CELL_SIZE_PX),
   });
 
-  const drawCell = (ctx: CanvasRenderingContext2D, coord: Coord, nodeType: NodeType) => {
-    const pos = coordToCanvasPos(coord);
+  const drawRoundedRect = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  };
+  
+  const drawIcon = (ctx: CanvasRenderingContext2D, pos: { x: number; y: number }, nodeType: NodeType) => {
+    const centerX = pos.x + CELL_SIZE_PX / 2;
+    const centerY = pos.y + CELL_SIZE_PX / 2;
+    const size = 16;
     
-    // Fill cell
-    ctx.fillStyle = NODE_COLORS[nodeType];
-    ctx.fillRect(pos.x, pos.y, CELL_SIZE_PX, CELL_SIZE_PX);
+    ctx.save();
+    ctx.lineWidth = 2;
+    
+    if (nodeType === NodeType.SOURCE) {
+      // Draw smiley face
+      ctx.strokeStyle = '#1e40af';
+      ctx.fillStyle = '#3b82f6';
+      
+      // Face circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Eyes
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(centerX - 3, centerY - 2, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(centerX + 3, centerY - 2, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Smile
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY + 1, 4, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
+    } else if (nodeType === NodeType.TARGET) {
+      // Draw target/bullseye
+      ctx.strokeStyle = '#d97706';
+      ctx.fillStyle = '#f59e0b';
+      
+      // Outer circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Inner circle
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size / 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Center dot
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    ctx.restore();
+  };
+
+  const drawCell = (
+    ctx: CanvasRenderingContext2D, 
+    coord: Coord, 
+    nodeType: NodeType,
+    animationProps?: { scale: number; color: [number, number, number]; borderRadius: number }
+  ) => {
+    const pos = coordToCanvasPos(coord);
+    const centerX = pos.x + CELL_SIZE_PX / 2;
+    const centerY = pos.y + CELL_SIZE_PX / 2;
+    
+    ctx.save();
+    
+    if (animationProps) {
+      // Apply scaling transform
+      ctx.translate(centerX, centerY);
+      ctx.scale(animationProps.scale, animationProps.scale);
+      ctx.translate(-CELL_SIZE_PX / 2, -CELL_SIZE_PX / 2);
+      
+      // Use animated color
+      ctx.fillStyle = rgbToString(animationProps.color);
+      
+      if (animationProps.borderRadius > 0) {
+        // Draw rounded rectangle for visited nodes
+        const radius = (animationProps.borderRadius / 100) * (CELL_SIZE_PX / 2);
+        drawRoundedRect(ctx, 0, 0, CELL_SIZE_PX, CELL_SIZE_PX, radius);
+        ctx.fill();
+      } else {
+        ctx.fillRect(0, 0, CELL_SIZE_PX, CELL_SIZE_PX);
+      }
+    } else {
+      // Static color
+      const color = STATIC_NODE_COLORS[nodeType];
+      ctx.fillStyle = rgbToString(color);
+      ctx.fillRect(pos.x, pos.y, CELL_SIZE_PX, CELL_SIZE_PX);
+    }
+    
+    ctx.restore();
     
     // Draw border
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#9ae2ff';
     ctx.lineWidth = 1;
     ctx.strokeRect(pos.x, pos.y, CELL_SIZE_PX, CELL_SIZE_PX);
+    
+    // Draw icons for source/target
+    if (nodeType === NodeType.SOURCE || nodeType === NodeType.TARGET) {
+      drawIcon(ctx, pos, nodeType);
+    }
   };
 
   const renderGrid = useCallback(() => {
@@ -76,16 +198,89 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Get active animations
+    const animations = animationSystemRef.current.getActiveAnimations();
+    const animationMap = new Map();
+    animations.forEach(anim => {
+      const key = `${anim.coord.x}-${anim.coord.y}`;
+      animationMap.set(key, anim);
+    });
+    
     // Draw all cells
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const node = grid[y][x];
-        drawCell(ctx, { x, y }, node.type);
+        const key = `${x}-${y}`;
+        const animation = animationMap.get(key);
+        
+        let animationProps;
+        if (animation && !animation.isComplete) {
+          animationProps = getAnimationProps(animation.nodeType, animation.progress);
+        }
+        
+        // Only show animation for nodes that should be animated
+        // For completed animations, show the final static color
+        if (animation && !animation.isComplete) {
+          drawCell(ctx, { x, y }, node.type, animationProps);
+        } else {
+          drawCell(ctx, { x, y }, node.type);
+        }
       }
     }
   }, [grid]);
 
-  // Update canvas size and render when grid changes
+  // Detect new animated nodes and trigger animations
+  useEffect(() => {
+    const currentGrid = grid;
+    const lastGrid = lastGridRef.current;
+    
+    if (lastGrid.length > 0) {
+      for (let y = 0; y < currentGrid.length; y++) {
+        for (let x = 0; x < currentGrid[y]?.length || 0; x++) {
+          const currentNode = currentGrid[y]?.[x];
+          const lastNode = lastGrid[y]?.[x];
+          
+          if (currentNode && lastNode && currentNode.type !== lastNode.type) {
+            // Node type changed
+            if (currentNode.type === NodeType.VISITED || 
+                currentNode.type === NodeType.PATH || 
+                currentNode.type === NodeType.WALL) {
+              // Add animation for new animated nodes
+              animationSystemRef.current.addAnimation(
+                { x, y }, 
+                currentNode.type
+              );
+            } else if (lastNode.type === NodeType.VISITED || lastNode.type === NodeType.PATH) {
+              // Remove animation if node changed from animated to non-animated
+              animationSystemRef.current.removeAnimation({ x, y });
+            }
+          }
+        }
+      }
+    }
+    
+    lastGridRef.current = JSON.parse(JSON.stringify(currentGrid));
+  }, [grid]);
+  
+  // Animation loop
+  useEffect(() => {
+    let animationId: number;
+    
+    const animate = () => {
+      renderGrid();
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [renderGrid]);
+
+  // Update canvas size when grid changes
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -93,9 +288,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     const { width, height } = getGridDimensions();
     canvas.width = width * CELL_SIZE_PX;
     canvas.height = height * CELL_SIZE_PX;
-    
-    renderGrid();
-  }, [grid, renderGrid]);
+  }, [grid]);
 
   // Mouse event handlers
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -179,6 +372,14 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
   }, [isMakingWalls, isDragging]);
+  
+  // Start animation system
+  useEffect(() => {
+    animationSystemRef.current.start();
+    return () => {
+      animationSystemRef.current.stop();
+    };
+  }, []);
 
   return (
     <canvas
