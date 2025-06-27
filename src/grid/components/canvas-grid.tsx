@@ -290,16 +290,18 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     canvas.height = height * CELL_SIZE_PX;
   }, [grid, getGridDimensions]);
 
-  // Mouse event handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Mouse and touch event handlers
+  const handleInteractionStart = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (isVisualizing) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     const coord = canvasPosToCoord(x, y);
 
     const { width, height } = getGridDimensions();
@@ -309,21 +311,28 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
 
     if (node.type === NodeType.SOURCE || node.type === NodeType.TARGET) {
       setIsDragging({ type: node.type, coord });
+      if ('touches' in e) e.preventDefault();
     } else if (node.type === NodeType.BLANK) {
       setIsMakingWalls(true);
       onSetWall(coord);
     }
   }, [grid, isVisualizing, onSetWall, getGridDimensions]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleInteractionMove = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (isVisualizing) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (isDragging && 'touches' in e) {
+      e.preventDefault();
+    }
+
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     const coord = canvasPosToCoord(x, y);
 
     const { width, height } = getGridDimensions();
@@ -352,24 +361,26 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     }
   }, [grid, isVisualizing, isMakingWalls, isDragging, onSetWall, onSetSourceCoord, onSetTargetCoord, onResetVisualization, getGridDimensions]);
 
-  const handleMouseUp = useCallback(() => {
+  const handleInteractionEnd = useCallback(() => {
     setIsMakingWalls(false);
     setIsDragging(null);
   }, []);
 
-  // Global mouse up listener
+  // Global mouse up/touch end listener
   useEffect(() => {
-    const handleGlobalMouseUp = () => {
+    const handleEnd = () => {
       setIsMakingWalls(false);
       setIsDragging(null);
     };
 
     if (isMakingWalls || isDragging) {
-      window.addEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('mouseup', handleEnd);
+      window.addEventListener('touchend', handleEnd);
     }
 
     return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchend', handleEnd);
     };
   }, [isMakingWalls, isDragging]);
   
@@ -385,9 +396,12 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onMouseDown={handleInteractionStart}
+      onMouseMove={handleInteractionMove}
+      onMouseUp={handleInteractionEnd}
+      onTouchStart={handleInteractionStart}
+      onTouchMove={handleInteractionMove}
+      onTouchEnd={handleInteractionEnd}
       style={{
         display: 'block',
         cursor: isDragging ? 'grabbing' : (isMakingWalls ? 'crosshair' : 'default'),
