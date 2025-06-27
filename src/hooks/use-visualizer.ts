@@ -1,12 +1,10 @@
-import { useEffect, useReducer, useState, useRef } from 'react';
-import { Coord, Grid as GridType } from '../types/types';
+import { useEffect, useReducer, useState, useRef, useCallback } from 'react';
+import { Coord, Grid as GridType, Algorithm } from '../types/types';
 import { dijkstra } from '@/algorithms/pathfinding/dijkstra';
-import { Algorithm } from '../types/types';
 import { recursiveBacktracking } from '@/algorithms/maze/recursive-backtracking';
 import { createEmptyGrid, createGridCopyWithNoPath } from '@/grid/state/grid-utils';
 import { gridReducer } from '@/grid/state/grid-reducer';
 import { VISITED_NODE_DELAY_MS, PATH_NODE_DELAY_MS, MAZE_WALL_DELAY_MS } from '../constants';
-import { useCallback } from 'react';
 import { AnimationSystem, createCombinedSequence, createMazeSequence, AnimationFrame } from '../animation/animation-system';
 
 export const useVisualizer = () => {
@@ -17,10 +15,7 @@ export const useVisualizer = () => {
   const [algorithm, setAlgorithm] = useState<Algorithm>(() => dijkstra);
   const [isVisualizing, setIsVisualizing] = useState(false);
 
-  // Grid managed by reducer
   const [grid, dispatchGrid] = useReducer(gridReducer, [] as GridType);
-
-  // Animation system
   const animationSystemRef = useRef<AnimationSystem>(new AnimationSystem());
 
   // ------ Initialization --------------------------------------------------
@@ -32,7 +27,6 @@ export const useVisualizer = () => {
     setTargetCoord(randomTarget);
     const freshGrid = createEmptyGrid(numGridCols, numGridRows, randomSource, randomTarget);
     dispatchGrid({ type: 'RESET', grid: freshGrid });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numGridCols, numGridRows]);
 
   // ------ User interactions ----------------------------------------------

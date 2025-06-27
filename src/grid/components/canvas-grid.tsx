@@ -39,10 +39,10 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
   } | null>(null);
   const lastGridRef = useRef<GridType>([]);
 
-  const getGridDimensions = () => {
+  const getGridDimensions = useCallback(() => {
     if (grid.length === 0) return { width: 0, height: 0 };
     return { width: grid[0].length, height: grid.length };
-  };
+  }, [grid]);
 
   const coordToCanvasPos = (coord: Coord) => ({
     x: coord.x * CELL_SIZE_PX,
@@ -137,7 +137,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     ctx.restore();
   };
 
-  const drawCell = (
+  const drawCell = useCallback((
     ctx: CanvasRenderingContext2D, 
     coord: Coord, 
     nodeType: NodeType,
@@ -184,7 +184,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     if (nodeType === NodeType.SOURCE || nodeType === NodeType.TARGET) {
       drawIcon(ctx, pos, nodeType);
     }
-  };
+  }, []);
 
   const renderGrid = useCallback(() => {
     const canvas = canvasRef.current;
@@ -227,7 +227,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
         }
       }
     }
-  }, [grid]);
+  }, [grid, getGridDimensions, drawCell]);
 
   // Detect new animated nodes and trigger animations
   useEffect(() => {
@@ -288,7 +288,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
     const { width, height } = getGridDimensions();
     canvas.width = width * CELL_SIZE_PX;
     canvas.height = height * CELL_SIZE_PX;
-  }, [grid]);
+  }, [grid, getGridDimensions]);
 
   // Mouse event handlers
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -313,7 +313,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
       setIsMakingWalls(true);
       onSetWall(coord);
     }
-  }, [grid, isVisualizing, onSetWall]);
+  }, [grid, isVisualizing, onSetWall, getGridDimensions]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isVisualizing) return;
@@ -350,7 +350,7 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
         setIsDragging({ ...isDragging, coord });
       }
     }
-  }, [grid, isVisualizing, isMakingWalls, isDragging, onSetWall, onSetSourceCoord, onSetTargetCoord, onResetVisualization]);
+  }, [grid, isVisualizing, isMakingWalls, isDragging, onSetWall, onSetSourceCoord, onSetTargetCoord, onResetVisualization, getGridDimensions]);
 
   const handleMouseUp = useCallback(() => {
     setIsMakingWalls(false);
@@ -375,9 +375,10 @@ export const CanvasGrid: React.FC<CanvasGridProps> = ({
   
   // Start animation system
   useEffect(() => {
-    animationSystemRef.current.start();
+    const animationSystem = animationSystemRef.current;
+    animationSystem.start();
     return () => {
-      animationSystemRef.current.stop();
+      animationSystem.stop();
     };
   }, []);
 
